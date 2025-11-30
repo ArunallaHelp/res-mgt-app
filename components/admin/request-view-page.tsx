@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import type { SupportRequest } from "@/lib/types"
 import { RequestDetailsPanel } from "./request-details-panel"
 import { RequestTimeline } from "./request-timeline"
 import { AddCommentForm } from "./add-comment-form"
+import { QuickActionsPanel } from "./quick-actions-panel"
 import { Button } from "@/components/ui/button"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import { ArrowLeft, FileText } from "lucide-react"
@@ -15,13 +16,32 @@ interface RequestViewPageProps {
   userEmail: string
 }
 
-export function RequestViewPage({ request, userEmail }: RequestViewPageProps) {
+export function RequestViewPage({ request: initialRequest, userEmail }: RequestViewPageProps) {
   const router = useRouter()
+  const [optimisticOverrides, setOptimisticOverrides] = useState<Partial<SupportRequest>>({})
   const [timelineKey, setTimelineKey] = useState(0)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
+  // Merge initial request with optimistic overrides
+  const request = { ...initialRequest, ...optimisticOverrides }
+
   const handleCommentAdded = () => {
     setTimelineKey((prev) => prev + 1)
+  }
+
+  const handleActionComplete = () => {
+    // Clear optimistic overrides after server confirms the update
+    setOptimisticOverrides({})
+    // Refresh timeline
+    setTimelineKey((prev) => prev + 1)
+  }
+
+  const handleUpdate = (field: 'status' | 'verification_status' | 'priority', value: string) => {
+    // Store optimistic update as an override
+    setOptimisticOverrides((prev) => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   return (
@@ -47,6 +67,14 @@ export function RequestViewPage({ request, userEmail }: RequestViewPageProps) {
           <div className="grid grid-cols-2 gap-6">
             {/* Left: Request Details */}
             <div className="space-y-6">
+              {/* Quick Actions */}
+              <QuickActionsPanel 
+                request={request} 
+                userEmail={userEmail}
+                onActionComplete={handleActionComplete}
+                onUpdate={handleUpdate}
+              />
+              
               <div className="rounded-lg border border-border bg-card p-6">
                 <RequestDetailsPanel request={request} />
               </div>
@@ -77,6 +105,14 @@ export function RequestViewPage({ request, userEmail }: RequestViewPageProps) {
       {/* Mobile Layout: Timeline first, details in drawer */}
       <div className="lg:hidden">
         <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
+          {/* Quick Actions */}
+          <QuickActionsPanel 
+            request={request} 
+            userEmail={userEmail}
+            onActionComplete={handleActionComplete}
+            onUpdate={handleUpdate}
+          />
+          
           {/* Add Comment Form */}
           <div className="rounded-lg border border-border bg-card p-4">
             <h3 className="font-semibold text-foreground mb-4">Add Comment</h3>
