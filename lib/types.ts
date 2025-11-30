@@ -108,3 +108,148 @@ export const FLOOD_IMPACT_OPTIONS = [
   { id: "financial_difficulty", label: "Financial difficulty" },
   { id: "device_issues", label: "Device or connectivity issues" },
 ]
+
+export interface ManagerApplication {
+  id: string
+  // Personal Information
+  full_name: string
+  email: string
+  phone: string
+  district: string
+  nearest_town: string
+  
+  // Professional Information
+  job_role: string
+  other_role?: string
+  experience_years: string
+  highest_qualification: string
+  other_qualification?: string
+  professional_skills: string[]
+  other_skill?: string
+  
+  // Support Type
+  support_types: string[]
+  
+  // Subjects & Levels
+  grade_levels: string[]
+  subjects: string
+  other_subject?: string
+  
+  // Availability
+  available_days: string[]
+  available_time_slots: string[]
+  
+  // Teaching Mode
+  teaching_mode: string
+  
+  // Support Method
+  support_methods: string[]
+  
+  // Additional Information
+  volunteering_experience?: string
+  preferences_limitations?: string
+  comments?: string
+  
+  verification_status: VerificationStatus
+  created_at: string
+}
+
+export const CURRENT_ROLES = [
+  "Student",
+  "School Teacher",
+  "Tuition Teacher",
+  "University Lecturer",
+  "University Student",
+  "IT / STEM Professional",
+  "Non-STEM Professional",
+  "Retired Teacher",
+  "Other"
+]
+
+export const EXPERIENCE_YEARS = [
+  "0–1 years",
+  "2–5 years",
+  "6–10 years",
+  "10+ years"
+]
+
+export const QUALIFICATIONS = [
+  "O/L",
+  "A/L",
+  "Diploma",
+  "Degree",
+  "Postgraduate",
+  "Other"
+]
+
+export const PROFESSIONAL_SKILLS = [
+  "Teaching",
+  "Mentoring / Counselling",
+  "Content Creation",
+  "Paper Marking",
+  "Language Skills",
+  "Technical Skills (IT / AI / Coding)",
+  "Other"
+]
+
+export const SUPPORT_TYPES = [
+  "Academic Teaching",
+  "Non-teaching Support",
+  "Community Support",
+  "Resource/Material Support",
+  "Administrative Support"
+]
+
+export const GRADE_LEVELS = [
+  "Grade 6–9",
+  "O/L",
+  "A/L",
+  "University / Professional"
+]
+
+export const DAYS_OF_WEEK = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday"
+]
+
+export const TIME_SLOTS = [
+  "Morning (8am – 12pm)",
+  "Afternoon (12pm – 4pm)",
+  "Evening (4pm – 8pm)",
+  "Night (after 8pm)"
+]
+
+export const TEACHING_MODES = [
+  "Online",
+  "Physical",
+  "Both",
+  "Not Applicable"
+]
+
+export const SUPPORT_METHOD_CATEGORIES = {
+  "Teaching Support": [
+    "Conduct Classes"
+  ],
+  "Community & Group Support": [
+    "Answer student questions in community groups",
+    "Group moderator / community manager",
+    "Motivation & student guidance",
+    "Admin support (attendance, scheduling, coordination)"
+  ],
+  "Academic Assistance": [
+    "Paper marking",
+    "Reviewing student answers",
+    "Explaining corrections",
+    "Creating notes / slides / summaries / videos"
+  ],
+  "Resource Support": [
+    "Providing digital materials",
+    "Providing physical materials",
+    "Tools, devices, internet, sponsorship support"
+  ]
+}
