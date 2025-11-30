@@ -66,10 +66,12 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "postcss": "^8.5",
     "supabase": "^2.63.1",
     "tailwindcss": "^4.1.9",
