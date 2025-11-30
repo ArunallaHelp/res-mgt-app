@@ -4,7 +4,7 @@ export const translations = {
   // Header
   header: {
     title: {
-      en: "Arunalu",
+      en: "Arunalla",
       si: "අරුණලු",
       ta: "அருணலு",
     },
