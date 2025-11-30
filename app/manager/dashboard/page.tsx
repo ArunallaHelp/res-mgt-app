@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { ManagerDashboard as ManagerDashboardComponent } from '@/components/manager/manager-dashboard'
 
 export default async function ManagerDashboard() {
   const supabase = await createClient()
@@ -10,10 +11,5 @@ export default async function ManagerDashboard() {
     redirect('/manager/login')
   }
 
-  return (
-    <div className="container py-12">
-      <h1 className="text-2xl font-bold mb-4">Manager Dashboard</h1>
-      <p>Welcome, {user.email}!</p>
-    </div>
-  )
+  return <ManagerDashboardComponent userEmail={user.email || ""} />
 }
