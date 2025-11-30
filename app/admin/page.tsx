@@ -17,5 +17,16 @@ export default async function AdminPage() {
     redirect("/admin/login")
   }
 
+  // Check if user is a manager
+  const { data: manager } = await supabase
+    .from("managers")
+    .select("id")
+    .eq("email", user.email)
+    .single()
+
+  if (manager) {
+    redirect("/manager/dashboard")
+  }
+
   return <AdminDashboard userEmail={user.email || ""} />
 }

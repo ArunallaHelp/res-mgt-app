@@ -11,5 +11,16 @@ export default async function ManagerDashboard() {
     redirect('/manager/login')
   }
 
+  // Check if user is a manager
+  const { data: manager } = await supabase
+    .from("managers")
+    .select("id")
+    .eq("email", user.email)
+    .single()
+
+  if (!manager) {
+    redirect("/admin")
+  }
+
   return <ManagerDashboardComponent userEmail={user.email || ""} />
 }
