@@ -24,19 +24,16 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
   const router = useRouter()
   const dispatch = useAppDispatch()
 
-  // Get state from Redux
+  const request = useAppSelector((state) => state.requests?.requests?.[initialRequest.id]) || initialRequest
+  
   const optimisticUpdates = useAppSelector(
-    (state) => state.requests.optimisticUpdates[initialRequest.id] || {}
+    (state) => state.requests?.optimisticUpdates?.[initialRequest.id] || {}
   )
-  const isDrawerOpen = useAppSelector((state) => state.ui.isDrawerOpen)
+  const isDrawerOpen = useAppSelector((state) => state.ui?.isDrawerOpen || false)
   const refreshTrigger = useAppSelector(
-    (state) => state.timeline.refreshTrigger[initialRequest.id]
+    (state) => state.timeline?.refreshTrigger?.[initialRequest.id]
   )
 
-  // Merge initial request with optimistic updates
-  const request = { ...initialRequest, ...optimisticUpdates }
-
-  // Initialize the request in Redux store on mount
   useEffect(() => {
     dispatch(setRequest(initialRequest))
     dispatch(setActiveRequest(initialRequest.id))

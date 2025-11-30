@@ -24,16 +24,22 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
   const dispatch = useAppDispatch()
   
   // Redux state
-  const requestsMap = useAppSelector((state) => state.requests.requests)
-  const listIds = useAppSelector((state) => state.requests.listIds)
-  const loading = useAppSelector((state) => state.requests.listLoading)
-  const filters = useAppSelector((state) => state.ui.filters)
+  const requestsMap = useAppSelector((state) => state.requests?.requests || {})
+  const listIds = useAppSelector((state) => state.requests?.listIds || [])
+  const loading = useAppSelector((state) => state.requests?.listLoading || false)
+  const filters = useAppSelector((state) => state.ui?.filters || {
+    district: 'all',
+    status: 'all',
+    verification: 'all',
+    priority: 'all',
+    search: '',
+  })
   
   // Local state for modal
   const [selectedRequest, setSelectedRequest] = useState<SupportRequest | null>(null)
 
   // Derived state
-  const requests = listIds.map((id) => requestsMap[id]).filter(Boolean) as SupportRequest[]
+  const requests = (listIds || []).map((id) => requestsMap[id]).filter(Boolean) as SupportRequest[]
 
   const fetchRequests = useCallback(() => {
     dispatch(fetchRequestsThunk())

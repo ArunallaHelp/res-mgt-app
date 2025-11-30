@@ -38,9 +38,9 @@ export function RequestTimeline({ requestId }: RequestTimelineProps) {
   const dispatch = useAppDispatch()
   
   // Get state from Redux
-  const timeline = useAppSelector((state) => state.timeline.entries[requestId] || [])
-  const loading = useAppSelector((state) => state.timeline.loading[requestId] || false)
-  const refreshTrigger = useAppSelector((state) => state.timeline.refreshTrigger[requestId])
+  const timeline = useAppSelector((state) => state.timeline?.entries?.[requestId] || [])
+  const loading = useAppSelector((state) => state.timeline?.loading?.[requestId] || false)
+  const refreshTrigger = useAppSelector((state) => state.timeline?.refreshTrigger?.[requestId])
 
   useEffect(() => {
     dispatch(fetchTimelineThunk(requestId))

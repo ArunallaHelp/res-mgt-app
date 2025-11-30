@@ -21,9 +21,9 @@ export function QuickActionsPanel({ request, userEmail }: QuickActionsPanelProps
   
   // Get the optimistic updates and loading state from Redux
   const optimisticUpdates = useAppSelector(
-    (state) => state.requests.optimisticUpdates[request.id] || {}
+    (state) => state.requests?.optimisticUpdates?.[request.id] || {}
   )
-  const isLoading = useAppSelector((state) => state.requests.loading[request.id] || false)
+  const isLoading = useAppSelector((state) => state.requests?.loading?.[request.id] || false)
 
   // Merge the request with optimistic updates
   const displayRequest = { ...request, ...optimisticUpdates }
