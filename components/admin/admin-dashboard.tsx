@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -17,6 +18,7 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ userEmail }: AdminDashboardProps) {
+  const router = useRouter()
   const [requests, setRequests] = useState<SupportRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedRequest, setSelectedRequest] = useState<SupportRequest | null>(null)
@@ -283,7 +285,11 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
                           {new Date(request.created_at).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3">
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedRequest(request)}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => router.push(`/admin/requests/${request.id}`)}
+                          >
                             View
                           </Button>
                         </td>
@@ -301,6 +307,7 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
       {selectedRequest && (
         <RequestDetailModal
           request={selectedRequest}
+          userEmail={userEmail}
           onClose={() => setSelectedRequest(null)}
           onUpdate={() => {
             fetchRequests()

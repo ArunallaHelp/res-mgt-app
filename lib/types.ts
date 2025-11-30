@@ -22,6 +22,32 @@ export interface SupportRequest {
   created_at: string
 }
 
+export type TimelineEventType = 
+  | "status_change" 
+  | "verification_change" 
+  | "priority_change" 
+  | "comment" 
+  | "note" 
+  | "created"
+
+export interface TimelineEventData {
+  old_value?: string
+  new_value?: string
+  field?: string
+  [key: string]: any
+}
+
+export interface TimelineEntry {
+  id: string
+  request_id: string
+  event_type: TimelineEventType
+  event_data: TimelineEventData | null
+  comment: string | null
+  created_by: string
+  created_at: string
+}
+
+
 export const DISTRICTS = [
   "Colombo",
   "Gampaha",
