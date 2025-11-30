@@ -56,9 +56,19 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
             <Button variant="ghost" size="icon" onClick={() => router.push("/admin")}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div className="flex-1">
-              <h1 className="text-xl font-semibold text-foreground">Request Details</h1>
-              <p className="text-sm text-muted-foreground">{request.reference_code}</p>
+            <div className="flex-1 flex items-center justify-between gap-2">
+              <div>
+                <h1 className="text-xl font-semibold text-foreground">Request Details</h1>
+                <p className="text-sm text-muted-foreground">{request.reference_code}</p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="lg:hidden"
+                onClick={() => dispatch(setDrawerOpen(true))}
+              >
+                View More
+              </Button>
             </div>
           </div>
         </div>
@@ -70,12 +80,6 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
           <div className="grid grid-cols-2 gap-6">
             {/* Left: Request Details */}
             <div className="space-y-6">
-              {/* Quick Actions */}
-              <QuickActionsPanel 
-                request={request} 
-                userEmail={userEmail}
-              />
-              
               <div className="rounded-lg border border-border bg-card p-6">
                 <RequestDetailsPanel request={request} />
               </div>
@@ -83,6 +87,12 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
 
             {/* Right: Timeline */}
             <div className="space-y-6">
+              {/* Quick Actions */}
+              <QuickActionsPanel 
+                request={request} 
+                userEmail={userEmail}
+              />
+
               {/* Add Comment Form */}
               <div className="rounded-lg border border-border bg-card p-6">
                 <h3 className="font-semibold text-foreground mb-4">Add Comment</h3>
