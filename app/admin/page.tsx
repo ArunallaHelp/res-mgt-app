@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
+import { getAllManagers } from "@/app/actions/managers"
+import { getManagerGroups } from "@/app/actions/manager-groups"
 
 export const metadata = {
   title: "Admin Dashboard - Flood Relief Education Support",
@@ -28,5 +30,10 @@ export default async function AdminPage() {
     redirect("/manager/dashboard")
   }
 
-  return <AdminDashboard userEmail={user.email || ""} />
+  const [managers, groups] = await Promise.all([
+    getAllManagers(),
+    getManagerGroups()
+  ])
+
+  return <AdminDashboard userEmail={user.email || ""} managers={managers || []} groups={groups || []} />
 }

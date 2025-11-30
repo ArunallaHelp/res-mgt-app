@@ -152,6 +152,8 @@ export interface ManagerApplication {
   
   verification_status: VerificationStatus
   created_at: string
+  tags?: string[]
+  group_ids?: string[]
 }
 
 export const CURRENT_ROLES = [
@@ -252,4 +254,18 @@ export const SUPPORT_METHOD_CATEGORIES = {
     "Providing physical materials",
     "Tools, devices, internet, sponsorship support"
   ]
+}
+
+export interface ManagerGroup {
+  id: string
+  name: string
+  description: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ManagerGroupMember {
+  group_id: string
+  manager_id: string
+  added_at: string
 }
