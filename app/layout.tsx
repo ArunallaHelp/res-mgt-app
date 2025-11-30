@@ -10,7 +10,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Flood Relief Education Support - Sri Lanka 2025",
+  title: "Arunalu - Flood Relief Education Support",
   description:
     "Education support for students affected by the 2025 Sri Lanka floods. Request help with books, tuition, mentoring, and exam preparation.",
   generator: "v0.app",

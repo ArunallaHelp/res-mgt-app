@@ -4,9 +4,9 @@ export const translations = {
   // Header
   header: {
     title: {
-      en: "Flood Relief Education Support",
-      si: "ගංවතුර සහන අධ්‍යාපන සහාය",
-      ta: "வெள்ள நிவாரண கல்வி உதவி",
+      en: "Arunalu",
+      si: "අරුණලු",
+      ta: "அருணலு",
     },
     subtitle: {
       en: "Sri Lanka 2025",
@@ -61,6 +61,35 @@ export const translations = {
       en: "Helping students recover and continue their education",
       si: "සිසුන්ට යථා තත්ත්වයට පත්වීමට සහ අධ්‍යාපනය දිගටම කරගෙන යාමට උපකාර කිරීම",
       ta: "மாணவர்கள் மீண்டு தங்கள் கல்வியை தொடர உதவுதல",
+    },
+  },
+
+  // Community Groups
+  community: {
+    title: {
+      en: "Join Our Community Groups",
+      si: "අපගේ ප්‍රජා කණ්ඩායම් හා එක්වන්න",
+      ta: "எங்கள் சமூக குழுக்களில் சேரவும்",
+    },
+    description: {
+      en: "Join these groups to get the latest information and updates.",
+      si: "නවතම තොරතුරු සහ යාවත්කාලීන ලබා ගැනීමට මෙම කණ්ඩායම් හා එක්වන්න.",
+      ta: "சமீபத்திய தகவல்கள் மற்றும் புதுப்பிப்புகளைப் பெற இந்த குழுக்களில் சேரவும்.",
+    },
+    alGroup: {
+      en: "A/L Students Group",
+      si: "උසස් පෙළ සිසුන්ගේ කණ්ඩායම",
+      ta: "உயர்தர மாணவர்கள் குழு",
+    },
+    olGroup: {
+      en: "O/L Students Group",
+      si: "සාමාන්‍ය පෙළ සිසුන්ගේ කණ්ඩායම",
+      ta: "சாதாரண தர மாணவர்கள் குழு",
+    },
+    joinButton: {
+      en: "Join Group",
+      si: "කණ්ඩායමට එක්වන්න",
+      ta: "குழுவில் சேரவும்",
     },
   },
 

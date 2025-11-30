@@ -19,7 +19,7 @@ export function ManagerHeader({ userEmail }: ManagerHeaderProps) {
       <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-foreground">Manager Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Flood Relief Education Support</p>
+          <p className="text-sm text-muted-foreground">Arunalu</p>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">{userEmail}</span>

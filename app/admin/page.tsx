@@ -5,7 +5,7 @@ import { getAllManagers } from "@/app/actions/managers"
 import { getManagerGroups } from "@/app/actions/manager-groups"
 
 export const metadata = {
-  title: "Admin Dashboard - Flood Relief Education Support",
+  title: "Admin Dashboard - Arunalu",
 }
 
 export default async function AdminPage() {

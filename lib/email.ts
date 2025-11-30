@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function sendOtpEmail(email: string, otp: string) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Flood Relief App <onboarding@arunalla.help>',
+      from: 'Arunalu App <onboarding@arunalla.help>',
       to: [email],
       subject: 'Your Verification Code',
       html: `
