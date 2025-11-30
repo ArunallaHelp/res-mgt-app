@@ -23,9 +23,13 @@ export async function submitRequest(formData: FormData) {
     const flood_impact_details = formData.get("flood_impact_details") as string
     const flood_impact_types = JSON.parse(formData.get("flood_impact_types") as string) as string[]
     const support_needed = JSON.parse(formData.get("support_needed") as string) as string[]
+    const other_situations = (formData.get("other_situations") as string) || ""
 
     // Combine flood impact types and details
-    const flood_impact = `Types: ${flood_impact_types.join(", ")}\n\nDetails: ${flood_impact_details}`
+    let flood_impact = `Types: ${flood_impact_types.join(", ")}\n\nDetails: ${flood_impact_details}`
+    if (other_situations) {
+      flood_impact += `\n\nOther Situations: ${other_situations}`
+    }
 
     // Generate unique reference code
     const reference_code = generateReferenceCode()

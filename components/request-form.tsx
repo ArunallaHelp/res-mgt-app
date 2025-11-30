@@ -86,15 +86,18 @@ export function RequestForm() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="age">{t("form.age", language)} *</Label>
-              <Input
-                id="age"
-                name="age"
-                type="number"
-                min="5"
-                max="99"
-                required
-                placeholder={t("form.agePlaceholder", language)}
-              />
+              <Select name="age" required>
+                <SelectTrigger id="age">
+                  <SelectValue placeholder={t("form.agePlaceholder", language)} />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 35 }, (_, i) => i + 5).map((age) => (
+                    <SelectItem key={age} value={age.toString()}>
+                      {age}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid gap-2">
@@ -189,11 +192,10 @@ export function RequestForm() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="flood_impact_details">{t("form.howAffected", language)} *</Label>
+            <Label htmlFor="flood_impact_details">{t("form.howAffected", language)}</Label>
             <Textarea
               id="flood_impact_details"
               name="flood_impact_details"
-              required
               rows={4}
               placeholder={t("form.howAffectedPlaceholder", language)}
             />
@@ -224,6 +226,20 @@ export function RequestForm() {
               ))}
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Other Situations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">{t("form.otherSituations", language)}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            name="other_situations"
+            rows={4}
+            placeholder={t("form.otherSituationsPlaceholder", language)}
+          />
         </CardContent>
       </Card>
 

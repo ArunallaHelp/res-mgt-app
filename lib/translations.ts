@@ -173,9 +173,9 @@ export const translations = {
       ta: "வயது",
     },
     agePlaceholder: {
-      en: "Your age",
-      si: "ඔබේ වයස",
-      ta: "உங்கள் வயது",
+      en: "Select age",
+      si: "වයස තෝරන්න",
+      ta: "வயதை தேர்ந்தெடுக்கவும்",
     },
     district: {
       en: "District / Area",
@@ -243,14 +243,24 @@ export const translations = {
       ta: "இழப்பு வகை (பொருந்தும் அனைத்தையும் தேர்ந்தெடுக்கவும்)",
     },
     howAffected: {
-      en: "How did the floods affect your education?",
-      si: "ගංවතුර ඔබේ අධ්‍යාපනයට බලපෑ ආකාරය,",
-      ta: "வெள்ளம் உங்கள் கல்வியை எவ்வாறு பாதித்தது?",
+      en: "How did the floods affect your education? (optional)",
+      si: "ගංවතුර ඔබේ අධ්‍යාපනයට බලපෑ ආකාරය (විකල්ප)",
+      ta: "வெள்ளம் உங்கள் கல்வியை எவ்வாறு பாதித்தது? (விரும்பினால்)",
     },
     howAffectedPlaceholder: {
       en: "Please describe how the floods affected your studies, what you lost, and your current situation...",
       si: "ගංවතුර ඔබේ අධ්‍යයනයට බලපෑ ආකාරය, ඔබට අහිමි වූ දේ සහ ඔබේ වත්මන් තත්ත්වය විස්තර කරන්න...",
       ta: "வெள்ளம் உங்கள் படிப்பை எவ்வாறு பாதித்தது, நீங்கள் இழந்தது என்ன, உங்கள் தற்போதைய நிலை ஆகியவற்றை விவரிக்கவும்...",
+    },
+    otherSituations: {
+      en: "Other Situations (optional)",
+      si: "වෙනත් තත්ත්වයන් (විකල්ප)",
+      ta: "பிற சூழ்நிலைகள் (விரும்பினால்)",
+    },
+    otherSituationsPlaceholder: {
+      en: "Please describe any other difficulties or situations we should know about...",
+      si: "අප දැනගත යුතු වෙනත් දුෂ්කරතා හෝ තත්ත්වයන් විස්තර කරන්න...",
+      ta: "நாங்கள் தெரிந்து கொள்ள வேண்டிய வேறு ஏதேனும் சிரமங்கள் அல்லது சூழ்நிலைகளை விவரிக்கவும்...",
     },
     supportNeeded: {
       en: "Support Needed",
