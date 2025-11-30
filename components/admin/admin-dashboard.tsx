@@ -9,9 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { RequestDetailModal } from "./request-detail-modal"
 import { signOut } from "@/app/actions/auth"
-import { createClient } from "@/lib/supabase/client"
 import type { SupportRequest, RequestStatus, VerificationStatus, PriorityLevel } from "@/lib/types"
 import { DISTRICTS } from "@/lib/types"
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import { fetchRequestsThunk } from "@/lib/store/thunks/requestThunks"
+import { setFilters, resetFilters } from "@/lib/store/slices/uiSlice"
 
 interface AdminDashboardProps {
   userEmail: string
@@ -19,58 +21,36 @@ interface AdminDashboardProps {
 
 export function AdminDashboard({ userEmail }: AdminDashboardProps) {
   const router = useRouter()
-  const [requests, setRequests] = useState<SupportRequest[]>([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  
+  // Redux state
+  const requestsMap = useAppSelector((state) => state.requests.requests)
+  const listIds = useAppSelector((state) => state.requests.listIds)
+  const loading = useAppSelector((state) => state.requests.listLoading)
+  const filters = useAppSelector((state) => state.ui.filters)
+  
+  // Local state for modal
   const [selectedRequest, setSelectedRequest] = useState<SupportRequest | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterDistrict, setFilterDistrict] = useState<string>("all")
-  const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [filterVerification, setFilterVerification] = useState<string>("all")
-  const [filterPriority, setFilterPriority] = useState<string>("all")
 
-  const fetchRequests = useCallback(async () => {
-    setLoading(true)
-    const supabase = createClient()
+  // Derived state
+  const requests = listIds.map((id) => requestsMap[id]).filter(Boolean) as SupportRequest[]
 
-    let query = supabase.from("requests").select("*").order("created_at", { ascending: false })
+  const fetchRequests = useCallback(() => {
+    dispatch(fetchRequestsThunk())
+  }, [dispatch])
 
-    if (filterDistrict !== "all") {
-      query = query.eq("district", filterDistrict)
-    }
-    if (filterStatus !== "all") {
-      query = query.eq("status", filterStatus)
-    }
-    if (filterVerification !== "all") {
-      query = query.eq("verification_status", filterVerification)
-    }
-    if (filterPriority !== "all") {
-      query = query.eq("priority", filterPriority)
-    }
-
-    const { data, error } = await query
-
-    if (error) {
-      console.error("Error fetching requests:", error)
-    } else {
-      setRequests(data || [])
-    }
-    setLoading(false)
-  }, [filterDistrict, filterStatus, filterVerification, filterPriority])
-
+  // Fetch on mount and when filters change (except search which is handled by thunk but we might want to debounce)
+  // For simplicity, we fetch when any filter changes. The thunk reads the current state.
   useEffect(() => {
-    fetchRequests()
-  }, [fetchRequests])
+    const timer = setTimeout(() => {
+      fetchRequests()
+    }, 300) // Debounce for search
+    return () => clearTimeout(timer)
+  }, [fetchRequests, filters])
 
-  const filteredRequests = requests.filter((request) => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    return (
-      request.name.toLowerCase().includes(query) ||
-      request.reference_code.toLowerCase().includes(query) ||
-      request.phone.includes(query) ||
-      (request.email && request.email.toLowerCase().includes(query))
-    )
-  })
+  const handleFilterChange = (key: keyof typeof filters, value: string) => {
+    dispatch(setFilters({ [key]: value }))
+  }
 
   const getStatusBadge = (status: RequestStatus) => {
     const variants: Record<RequestStatus, "default" | "secondary" | "outline"> = {
@@ -117,7 +97,15 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
     )
   }
 
-  // Calculate stats
+  // Calculate stats - Note: These stats are based on the *fetched* requests, which might be filtered.
+  // Ideally stats should be fetched separately or calculated on the full dataset.
+  // For now, we'll calculate based on the current view to match previous behavior if it was client-side filtering.
+  // But wait, previous behavior fetched *filtered* data from Supabase.
+  // So stats were only for the filtered view?
+  // Let's check previous code:
+  // `const stats = { total: requests.length, ... }`
+  // Yes, it was based on `requests` state which was the result of `fetchRequests`.
+  // So this behavior is preserved.
   const stats = {
     total: requests.length,
     new: requests.filter((r) => r.status === "new").length,
@@ -189,12 +177,12 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
               <div className="flex-1">
                 <Input
                   placeholder="Search by name, reference, phone, or email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
               </div>
               <div className="flex flex-wrap gap-2">
-                <Select value={filterDistrict} onValueChange={setFilterDistrict}>
+                <Select value={filters.district} onValueChange={(val) => handleFilterChange('district', val)}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="District" />
                   </SelectTrigger>
@@ -207,7 +195,7 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <Select value={filters.status} onValueChange={(val) => handleFilterChange('status', val)}>
                   <SelectTrigger className="w-[130px]">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
@@ -218,7 +206,7 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
                     <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={filterVerification} onValueChange={setFilterVerification}>
+                <Select value={filters.verification} onValueChange={(val) => handleFilterChange('verification', val)}>
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="Verification" />
                   </SelectTrigger>
@@ -229,7 +217,7 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
                     <SelectItem value="verified">Verified</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={filterPriority} onValueChange={setFilterPriority}>
+                <Select value={filters.priority} onValueChange={(val) => handleFilterChange('priority', val)}>
                   <SelectTrigger className="w-[120px]">
                     <SelectValue placeholder="Priority" />
                   </SelectTrigger>
@@ -243,6 +231,9 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
                 <Button variant="outline" onClick={fetchRequests}>
                   Refresh
                 </Button>
+                <Button variant="ghost" onClick={() => dispatch(resetFilters())}>
+                  Reset
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -253,7 +244,7 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
           <CardContent className="p-0">
             {loading ? (
               <div className="p-8 text-center text-muted-foreground">Loading requests...</div>
-            ) : filteredRequests.length === 0 ? (
+            ) : requests.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground">No requests found</div>
             ) : (
               <div className="overflow-x-auto">
@@ -272,7 +263,7 @@ export function AdminDashboard({ userEmail }: AdminDashboardProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {filteredRequests.map((request) => (
+                    {requests.map((request) => (
                       <tr key={request.id} className="hover:bg-muted/50">
                         <td className="px-4 py-3 text-sm font-mono">{request.reference_code}</td>
                         <td className="px-4 py-3 text-sm font-medium">{request.name}</td>

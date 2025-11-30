@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import type { SupportRequest } from "@/lib/types"
 import { RequestDetailsPanel } from "./request-details-panel"
@@ -10,6 +10,10 @@ import { QuickActionsPanel } from "./quick-actions-panel"
 import { Button } from "@/components/ui/button"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import { ArrowLeft, FileText } from "lucide-react"
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import { setRequest } from "@/lib/store/slices/requestsSlice"
+import { setActiveRequest, setDrawerOpen } from "@/lib/store/slices/uiSlice"
+import { triggerTimelineRefresh } from "@/lib/store/slices/timelineSlice"
 
 interface RequestViewPageProps {
   request: SupportRequest
@@ -18,30 +22,32 @@ interface RequestViewPageProps {
 
 export function RequestViewPage({ request: initialRequest, userEmail }: RequestViewPageProps) {
   const router = useRouter()
-  const [optimisticOverrides, setOptimisticOverrides] = useState<Partial<SupportRequest>>({})
-  const [timelineKey, setTimelineKey] = useState(0)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const dispatch = useAppDispatch()
 
-  // Merge initial request with optimistic overrides
-  const request = { ...initialRequest, ...optimisticOverrides }
+  // Get state from Redux
+  const optimisticUpdates = useAppSelector(
+    (state) => state.requests.optimisticUpdates[initialRequest.id] || {}
+  )
+  const isDrawerOpen = useAppSelector((state) => state.ui.isDrawerOpen)
+  const refreshTrigger = useAppSelector(
+    (state) => state.timeline.refreshTrigger[initialRequest.id]
+  )
+
+  // Merge initial request with optimistic updates
+  const request = { ...initialRequest, ...optimisticUpdates }
+
+  // Initialize the request in Redux store on mount
+  useEffect(() => {
+    dispatch(setRequest(initialRequest))
+    dispatch(setActiveRequest(initialRequest.id))
+
+    return () => {
+      dispatch(setActiveRequest(null))
+    }
+  }, [dispatch, initialRequest])
 
   const handleCommentAdded = () => {
-    setTimelineKey((prev) => prev + 1)
-  }
-
-  const handleActionComplete = () => {
-    // Clear optimistic overrides after server confirms the update
-    setOptimisticOverrides({})
-    // Refresh timeline
-    setTimelineKey((prev) => prev + 1)
-  }
-
-  const handleUpdate = (field: 'status' | 'verification_status' | 'priority', value: string) => {
-    // Store optimistic update as an override
-    setOptimisticOverrides((prev) => ({
-      ...prev,
-      [field]: value
-    }))
+    dispatch(triggerTimelineRefresh({ requestId: request.id }))
   }
 
   return (
@@ -71,8 +77,6 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
               <QuickActionsPanel 
                 request={request} 
                 userEmail={userEmail}
-                onActionComplete={handleActionComplete}
-                onUpdate={handleUpdate}
               />
               
               <div className="rounded-lg border border-border bg-card p-6">
@@ -95,7 +99,7 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
               {/* Timeline */}
               <div className="rounded-lg border border-border bg-card p-6">
                 <h3 className="font-semibold text-foreground mb-4 border-b pb-2">Activity Timeline</h3>
-                <RequestTimeline key={timelineKey} requestId={request.id} />
+                <RequestTimeline key={refreshTrigger} requestId={request.id} />
               </div>
             </div>
           </div>
@@ -109,8 +113,6 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
           <QuickActionsPanel 
             request={request} 
             userEmail={userEmail}
-            onActionComplete={handleActionComplete}
-            onUpdate={handleUpdate}
           />
           
           {/* Add Comment Form */}
@@ -126,7 +128,7 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
           {/* Timeline */}
           <div className="rounded-lg border border-border bg-card p-4">
             <h3 className="font-semibold text-foreground mb-4 border-b pb-2">Activity Timeline</h3>
-            <RequestTimeline key={timelineKey} requestId={request.id} />
+            <RequestTimeline key={refreshTrigger} requestId={request.id} />
           </div>
         </div>
 
@@ -135,14 +137,14 @@ export function RequestViewPage({ request: initialRequest, userEmail }: RequestV
           <Button
             size="lg"
             className="h-14 w-14 rounded-full shadow-lg"
-            onClick={() => setIsDrawerOpen(true)}
+            onClick={() => dispatch(setDrawerOpen(true))}
           >
             <FileText className="h-6 w-6" />
           </Button>
         </div>
 
         {/* Bottom Drawer for Details */}
-        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <Drawer open={isDrawerOpen} onOpenChange={(open) => dispatch(setDrawerOpen(open))}>
           <DrawerContent className="max-h-[85vh]">
             <DrawerHeader>
               <DrawerTitle>Request Details</DrawerTitle>

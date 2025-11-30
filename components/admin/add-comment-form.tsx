@@ -4,15 +4,18 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { addTimelineComment } from "@/app/actions/timeline"
+import { useAppDispatch } from "@/lib/store/hooks"
+import { addCommentThunk } from "@/lib/store/thunks/timelineThunks"
+import { addNotification } from "@/lib/store/slices/uiSlice"
 
 interface AddCommentFormProps {
   requestId: string
   userEmail: string
-  onCommentAdded: () => void
+  onCommentAdded?: () => void
 }
 
 export function AddCommentForm({ requestId, userEmail, onCommentAdded }: AddCommentFormProps) {
+  const dispatch = useAppDispatch()
   const [comment, setComment] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
@@ -21,15 +24,22 @@ export function AddCommentForm({ requestId, userEmail, onCommentAdded }: AddComm
     if (!comment.trim()) return
 
     setSubmitting(true)
-    const result = await addTimelineComment(requestId, comment.trim(), userEmail)
+    
+    try {
+      const result = await dispatch(addCommentThunk({ 
+        requestId, 
+        comment: comment.trim(), 
+        userEmail 
+      })).unwrap()
 
-    if (result.success) {
       setComment("")
-      onCommentAdded()
-    } else {
-      alert("Failed to add comment: " + (result.error || "Unknown error"))
+      dispatch(addNotification({ type: 'success', message: 'Comment added successfully' }))
+      onCommentAdded?.()
+    } catch (error) {
+      dispatch(addNotification({ type: 'error', message: `Failed to add comment: ${error}` }))
+    } finally {
+      setSubmitting(false)
     }
-    setSubmitting(false)
   }
 
   return (

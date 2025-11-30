@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { getRequestTimeline } from "@/app/actions/timeline"
+import { useEffect } from "react"
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import { fetchTimelineThunk } from "@/lib/store/thunks/timelineThunks"
 import type { TimelineEntry } from "@/lib/types"
 import {
   formatTimelineEvent,
@@ -34,23 +35,18 @@ const iconMap = {
 }
 
 export function RequestTimeline({ requestId }: RequestTimelineProps) {
-  const [timeline, setTimeline] = useState<TimelineEntry[]>([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  
+  // Get state from Redux
+  const timeline = useAppSelector((state) => state.timeline.entries[requestId] || [])
+  const loading = useAppSelector((state) => state.timeline.loading[requestId] || false)
+  const refreshTrigger = useAppSelector((state) => state.timeline.refreshTrigger[requestId])
 
   useEffect(() => {
-    loadTimeline()
-  }, [requestId])
+    dispatch(fetchTimelineThunk(requestId))
+  }, [dispatch, requestId, refreshTrigger])
 
-  const loadTimeline = async () => {
-    setLoading(true)
-    const result = await getRequestTimeline(requestId)
-    if (result.success && result.data) {
-      setTimeline(result.data)
-    }
-    setLoading(false)
-  }
-
-  if (loading) {
+  if (loading && timeline.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-sm text-muted-foreground">Loading timeline...</div>
