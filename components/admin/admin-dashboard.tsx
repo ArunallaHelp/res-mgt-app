@@ -1,0 +1,313 @@
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { RequestDetailModal } from "./request-detail-modal"
+import { signOut } from "@/app/actions/auth"
+import { createClient } from "@/lib/supabase/client"
+import type { SupportRequest, RequestStatus, VerificationStatus, PriorityLevel } from "@/lib/types"
+import { DISTRICTS } from "@/lib/types"
+
+interface AdminDashboardProps {
+  userEmail: string
+}
+
+export function AdminDashboard({ userEmail }: AdminDashboardProps) {
+  const [requests, setRequests] = useState<SupportRequest[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedRequest, setSelectedRequest] = useState<SupportRequest | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filterDistrict, setFilterDistrict] = useState<string>("all")
+  const [filterStatus, setFilterStatus] = useState<string>("all")
+  const [filterVerification, setFilterVerification] = useState<string>("all")
+  const [filterPriority, setFilterPriority] = useState<string>("all")
+
+  const fetchRequests = useCallback(async () => {
+    setLoading(true)
+    const supabase = createClient()
+
+    let query = supabase.from("requests").select("*").order("created_at", { ascending: false })
+
+    if (filterDistrict !== "all") {
+      query = query.eq("district", filterDistrict)
+    }
+    if (filterStatus !== "all") {
+      query = query.eq("status", filterStatus)
+    }
+    if (filterVerification !== "all") {
+      query = query.eq("verification_status", filterVerification)
+    }
+    if (filterPriority !== "all") {
+      query = query.eq("priority", filterPriority)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error("Error fetching requests:", error)
+    } else {
+      setRequests(data || [])
+    }
+    setLoading(false)
+  }, [filterDistrict, filterStatus, filterVerification, filterPriority])
+
+  useEffect(() => {
+    fetchRequests()
+  }, [fetchRequests])
+
+  const filteredRequests = requests.filter((request) => {
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      request.name.toLowerCase().includes(query) ||
+      request.reference_code.toLowerCase().includes(query) ||
+      request.phone.includes(query) ||
+      (request.email && request.email.toLowerCase().includes(query))
+    )
+  })
+
+  const getStatusBadge = (status: RequestStatus) => {
+    const variants: Record<RequestStatus, "default" | "secondary" | "outline"> = {
+      new: "default",
+      in_progress: "secondary",
+      completed: "outline",
+    }
+    const labels: Record<RequestStatus, string> = {
+      new: "New",
+      in_progress: "In Progress",
+      completed: "Completed",
+    }
+    return <Badge variant={variants[status]}>{labels[status]}</Badge>
+  }
+
+  const getVerificationBadge = (status: VerificationStatus) => {
+    const colors: Record<VerificationStatus, string> = {
+      unverified: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+      pending: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+      verified: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+    }
+    const labels: Record<VerificationStatus, string> = {
+      unverified: "Unverified",
+      pending: "Pending",
+      verified: "Verified",
+    }
+    return (
+      <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${colors[status]}`}>
+        {labels[status]}
+      </span>
+    )
+  }
+
+  const getPriorityBadge = (priority: PriorityLevel) => {
+    const colors: Record<PriorityLevel, string> = {
+      low: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+      medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
+      high: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+    }
+    return (
+      <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${colors[priority]}`}>
+        {priority.charAt(0).toUpperCase() + priority.slice(1)}
+      </span>
+    )
+  }
+
+  // Calculate stats
+  const stats = {
+    total: requests.length,
+    new: requests.filter((r) => r.status === "new").length,
+    verified: requests.filter((r) => r.verification_status === "verified").length,
+    highPriority: requests.filter((r) => r.priority === "high").length,
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">Admin Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Flood Relief Education Support</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">{userEmail}</span>
+            <form action={signOut}>
+              <Button type="submit" variant="outline" size="sm">
+                Sign Out
+              </Button>
+            </form>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-4 py-6">
+        {/* Stats Cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Requests</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{stats.total}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">New Requests</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600">{stats.new}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Verified</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-green-600">{stats.verified}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">High Priority</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-red-600">{stats.highPriority}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+              <div className="flex-1">
+                <Input
+                  placeholder="Search by name, reference, phone, or email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Select value={filterDistrict} onValueChange={setFilterDistrict}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="District" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Districts</SelectItem>
+                    {DISTRICTS.map((d) => (
+                      <SelectItem key={d} value={d}>
+                        {d}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-[130px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filterVerification} onValueChange={setFilterVerification}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Verification" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Verification</SelectItem>
+                    <SelectItem value="unverified">Unverified</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="verified">Verified</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={filterPriority} onValueChange={setFilterPriority}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priority</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" onClick={fetchRequests}>
+                  Refresh
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Requests Table */}
+        <Card>
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="p-8 text-center text-muted-foreground">Loading requests...</div>
+            ) : filteredRequests.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">No requests found</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="border-b border-border bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Reference</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">District</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Grade</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Verification</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Priority</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredRequests.map((request) => (
+                      <tr key={request.id} className="hover:bg-muted/50">
+                        <td className="px-4 py-3 text-sm font-mono">{request.reference_code}</td>
+                        <td className="px-4 py-3 text-sm font-medium">{request.name}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{request.district}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{request.grade}</td>
+                        <td className="px-4 py-3">{getStatusBadge(request.status)}</td>
+                        <td className="px-4 py-3">{getVerificationBadge(request.verification_status)}</td>
+                        <td className="px-4 py-3">{getPriorityBadge(request.priority)}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {new Date(request.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedRequest(request)}>
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+
+      {/* Request Detail Modal */}
+      {selectedRequest && (
+        <RequestDetailModal
+          request={selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+          onUpdate={() => {
+            fetchRequests()
+            setSelectedRequest(null)
+          }}
+        />
+      )}
+    </div>
+  )
+}
