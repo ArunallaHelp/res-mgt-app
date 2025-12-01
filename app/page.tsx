@@ -40,12 +40,17 @@ export default function HomePage() {
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground text-pretty">
             {t("landing.heroDescription", language)}
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button asChild size="lg" className="px-8">
               <Link href="/request">{t("landing.requestButton", language)}</Link>
             </Button>
-            <p className="mt-3 text-sm text-muted-foreground">{t("landing.noLoginRequired", language)}</p>
+            <Button asChild size="lg" variant="outline" className="px-8">
+              <a href={process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_GROUP_URL} target="_blank" rel="noopener noreferrer">
+                {t("landing.giveSupportButton", language)}
+              </a>
+            </Button>
           </div>
+          <p className="mt-3 text-sm text-muted-foreground">{t("landing.noLoginRequired", language)}</p>
         </section>
 
         {/* Important Notice Banner */}
@@ -63,7 +68,7 @@ export default function HomePage() {
           <h3 className="mb-4 text-xl font-semibold text-foreground">{t("community.title", language)}</h3>
           <p className="mb-6 text-muted-foreground">{t("community.description", language)}</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Card className="bg-card border-primary/20">
+            <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6 flex flex-col items-center text-center">
                 <h4 className="font-semibold text-lg mb-2">{t("community.alGroup", language)}</h4>
                 <Button asChild className="w-full mt-2" variant="outline">
@@ -73,7 +78,7 @@ export default function HomePage() {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="bg-card border-primary/20">
+            <Card className="bg-primary/5 border-primary/20">
               <CardContent className="p-6 flex flex-col items-center text-center">
                 <h4 className="font-semibold text-lg mb-2">{t("community.olGroup", language)}</h4>
                 <Button asChild className="w-full mt-2" variant="outline">
@@ -83,7 +88,7 @@ export default function HomePage() {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="bg-card border-primary/20">
+            <Card className="bg-primary/10 border-primary/40 shadow-sm">
               <CardContent className="p-6 flex flex-col items-center text-center">
                 <h4 className="font-semibold text-lg mb-2">{t("community.supportGroup", language)}</h4>
                 <Button asChild className="w-full mt-2" variant="outline">
@@ -101,7 +106,7 @@ export default function HomePage() {
           <h3 className="mb-4 text-xl font-semibold text-foreground">{t("landing.supportAvailable", language)}</h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {supportTypes.map((item, index) => (
-              <Card key={index} className="bg-card">
+              <Card key={index} className="bg-secondary/10 border-secondary/20">
                 <CardContent className="p-4">
                   <h4 className="font-medium text-foreground">{item.title[language]}</h4>
                   <p className="text-sm text-muted-foreground">{item.description[language]}</p>

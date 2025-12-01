@@ -32,6 +32,11 @@ export const translations = {
       si: "අධ්‍යාපන සහාය ඉල්ලීම",
       ta: "கல்வி உதவி கோரிக்கை",
     },
+    giveSupportButton: {
+      en: "Give Support",
+      si: "සහාය වන්න",
+      ta: "உதவி செய்யுங்கள்",
+    },
     noLoginRequired: {
       en: "No login required. Submit your request in a few minutes.",
       si: "පිවිසීම අවශ්‍ය නැත. විනාඩි කිහිපයකින් ඔබේ ඉල්ලීම ඉදිරිපත් කරන්න.",
