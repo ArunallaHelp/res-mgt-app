@@ -18,9 +18,9 @@ Get-Content .env.local | Where-Object { $_ -notmatch '^#' -and $_ -match '=' } |
 }
 
 # Set your GCP project ID
-$PROJECT_ID = if ($env:GCP_PROJECT_ID) { $env:GCP_PROJECT_ID } else { "your-project-id" }
-$SERVICE_NAME = "flood-relief-education-app"
-$REGION = "asia-south1"
+$PROJECT_ID = if ($env:GCP_PROJECT_ID) { $env:GCP_PROJECT_ID } else { "edusupport-b89a4" }
+$SERVICE_NAME = "v0-flood-relief-education-app"
+$REGION = "europe-west1"
 
 Write-Host "Project: $PROJECT_ID" -ForegroundColor Yellow
 Write-Host "Region: $REGION" -ForegroundColor Yellow

@@ -17,9 +17,9 @@ fi
 export $(grep -v '^#' .env.local | xargs)
 
 # Set your GCP project ID
-PROJECT_ID="${GCP_PROJECT_ID:-your-project-id}"
-SERVICE_NAME="flood-relief-education-app"
-REGION="asia-south1"
+PROJECT_ID="${GCP_PROJECT_ID:-edusupport-b89a4}"
+SERVICE_NAME="v0-flood-relief-education-app"
+REGION="europe-west1"
 
 echo "📦 Project: $PROJECT_ID"
 echo "🌍 Region: $REGION"
