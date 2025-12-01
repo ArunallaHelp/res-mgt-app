@@ -62,7 +62,7 @@ export default function HomePage() {
         <section className="mb-8">
           <h3 className="mb-4 text-xl font-semibold text-foreground">{t("community.title", language)}</h3>
           <p className="mb-6 text-muted-foreground">{t("community.description", language)}</p>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Card className="bg-card border-primary/20">
               <CardContent className="p-6 flex flex-col items-center text-center">
                 <h4 className="font-semibold text-lg mb-2">{t("community.alGroup", language)}</h4>
@@ -78,6 +78,16 @@ export default function HomePage() {
                 <h4 className="font-semibold text-lg mb-2">{t("community.olGroup", language)}</h4>
                 <Button asChild className="w-full mt-2" variant="outline">
                   <a href="https://www.pophop.chat/edusupol" target="_blank" rel="noopener noreferrer">
+                    {t("community.joinButton", language)}
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-primary/20">
+              <CardContent className="p-6 flex flex-col items-center text-center">
+                <h4 className="font-semibold text-lg mb-2">{t("community.supportGroup", language)}</h4>
+                <Button asChild className="w-full mt-2" variant="outline">
+                  <a href={process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_GROUP_URL} target="_blank" rel="noopener noreferrer">
                     {t("community.joinButton", language)}
                   </a>
                 </Button>

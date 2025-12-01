@@ -91,6 +91,11 @@ export const translations = {
       si: "කණ්ඩායමට එක්වන්න",
       ta: "குழுவில் சேரவும்",
     },
+    supportGroup: {
+      en: "Willing to Support?",
+      si: "සහාය වීමට කැමතිද?",
+      ta: "உதவ விரும்புகிறீர்களா?",
+    },
   },
 
   // Support Types
