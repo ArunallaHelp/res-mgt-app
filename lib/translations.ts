@@ -201,10 +201,15 @@ export const translations = {
       si: "වයස",
       ta: "வயது",
     },
-    agePlaceholder: {
-      en: "Select age",
-      si: "වයස තෝරන්න",
-      ta: "வயதை தேர்ந்தெடுக்கவும்",
+    birthYear: {
+      en: "Birth Year",
+      si: "උපන් වර්ෂය",
+      ta: "பிறந்த ஆண்டு",
+    },
+    birthYearPlaceholder: {
+      en: "Select year",
+      si: "වර්ෂය තෝරන්න",
+      ta: "ஆண்டை தேர்ந்தெடுக்கவும்",
     },
     district: {
       en: "District / Area",
@@ -215,6 +220,16 @@ export const translations = {
       en: "Select district",
       si: "දිස්ත්‍රික්කය තෝරන්න",
       ta: "மாவட்டத்தை தேர்ந்தெடுக்கவும்",
+    },
+    nearestTown: {
+      en: "Nearest Town",
+      si: "ළඟම නගරය",
+      ta: "அருகிலுள்ள நகரம்",
+    },
+    nearestTownPlaceholder: {
+      en: "Enter nearest town",
+      si: "ළඟම නගරය ඇතුළත් කරන්න",
+      ta: "அருகிலுள்ள நகரத்தை உள்ளிடவும்",
     },
     phone: {
       en: "Phone / WhatsApp",

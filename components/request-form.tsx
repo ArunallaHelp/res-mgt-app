@@ -85,15 +85,15 @@ export function RequestForm() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="age">{t("form.age", language)} *</Label>
-              <Select name="age" required>
-                <SelectTrigger id="age">
-                  <SelectValue placeholder={t("form.agePlaceholder", language)} />
+              <Label htmlFor="birth_year">{t("form.birthYear", language)} *</Label>
+              <Select name="birth_year" required>
+                <SelectTrigger id="birth_year">
+                  <SelectValue placeholder={t("form.birthYearPlaceholder", language)} />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: 35 }, (_, i) => i + 5).map((age) => (
-                    <SelectItem key={age} value={age.toString()}>
-                      {age}
+                  {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - 5 - i).map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -114,6 +114,11 @@ export function RequestForm() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="nearest_town">{t("form.nearestTown", language)}</Label>
+              <Input id="nearest_town" name="nearest_town" placeholder={t("form.nearestTownPlaceholder", language)} />
             </div>
           </div>
 

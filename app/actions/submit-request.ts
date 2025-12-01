@@ -13,8 +13,9 @@ export async function submitRequest(formData: FormData) {
     const supabase = await createClient()
 
     const name = formData.get("name") as string
-    const age = Number.parseInt(formData.get("age") as string, 10)
+    const birth_year = Number.parseInt(formData.get("birth_year") as string, 10)
     const district = formData.get("district") as string
+    const nearest_town = (formData.get("nearest_town") as string) || null
     const phone = formData.get("phone") as string
     const email = (formData.get("email") as string) || null
     const grade = formData.get("grade") as string
@@ -37,8 +38,9 @@ export async function submitRequest(formData: FormData) {
     const { error } = await supabase.from("requests").insert({
       reference_code,
       name,
-      age,
+      birth_year,
       district,
+      nearest_town,
       phone,
       email,
       grade,

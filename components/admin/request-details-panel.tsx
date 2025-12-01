@@ -47,12 +47,16 @@ export function RequestDetailsPanel({ request }: RequestDetailsPanelProps) {
             <p className="font-medium">{request.name}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Age</p>
-            <p className="font-medium">{request.age}</p>
+            <p className="text-sm text-muted-foreground">Birth Year</p>
+            <p className="font-medium">{request.birth_year}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">District</p>
             <p className="font-medium">{request.district}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Nearest Town</p>
+            <p className="font-medium">{request.nearest_town || "Not provided"}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Phone</p>

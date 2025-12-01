@@ -6,8 +6,9 @@ export interface SupportRequest {
   id: string
   reference_code: string
   name: string
-  age: number
+  birth_year: number
   district: string
+  nearest_town?: string
   phone: string
   email: string | null
   grade: string
