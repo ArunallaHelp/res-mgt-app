@@ -1,7 +1,8 @@
-import type React from "react"
+import type React from "next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { GoogleAnalytics } from "@/components/google-analytics"
 import { LanguageProvider } from "@/components/language-provider"
 import ReduxProvider from "@/components/providers/redux-provider"
 import "./globals.css"
@@ -44,6 +45,7 @@ export default function RootLayout({
         <ReduxProvider>
           <LanguageProvider>{children}</LanguageProvider>
         </ReduxProvider>
+        <GoogleAnalytics />
         <Analytics />
       </body>
     </html>
