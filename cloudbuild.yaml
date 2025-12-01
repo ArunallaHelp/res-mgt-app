@@ -1,0 +1,56 @@
+steps:
+  # Build the container image with build args from environment variables
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "--build-arg"
+      - "NEXT_PUBLIC_SUPABASE_URL=${_NEXT_PUBLIC_SUPABASE_URL}"
+      - "--build-arg"
+      - "NEXT_PUBLIC_SUPABASE_ANON_KEY=${_NEXT_PUBLIC_SUPABASE_ANON_KEY}"
+      - "--build-arg"
+      - "NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=${_NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL}"
+      - "-t"
+      - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${_TAG}"
+      - "-t"
+      - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:latest"
+      - "."
+    timeout: "1200s"
+
+  # Push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${_TAG}"
+
+  # Deploy to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "${_SERVICE_NAME}"
+      - "--image"
+      - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${_TAG}"
+      - "--region"
+      - "${_REGION}"
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+      - "--set-env-vars"
+      - "NEXT_PUBLIC_SUPABASE_URL=${_NEXT_PUBLIC_SUPABASE_URL},NEXT_PUBLIC_SUPABASE_ANON_KEY=${_NEXT_PUBLIC_SUPABASE_ANON_KEY},NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=${_NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL}"
+
+# Substitution variables (these will be provided during build)
+substitutions:
+  _SERVICE_NAME: "flood-relief-education-app"
+  _REGION: "asia-south1"
+  _TAG: "${SHORT_SHA}"
+  # Environment variables - set these when running the build
+  _NEXT_PUBLIC_SUPABASE_URL: ""
+  _NEXT_PUBLIC_SUPABASE_ANON_KEY: ""
+  _NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL: ""
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: "E2_HIGHCPU_8"
+
+timeout: "1800s"

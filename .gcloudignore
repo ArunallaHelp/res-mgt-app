@@ -1,0 +1,44 @@
+# .gcloudignore for Next.js application
+# This file tells Google Cloud Build which files to ignore when uploading
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Next.js
+.next/
+out/
+build/
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Environment files (don't upload - use Cloud Run env vars)
+.env
+.env.local
+.env*.local
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+.cache/
+tmp/
+temp/
