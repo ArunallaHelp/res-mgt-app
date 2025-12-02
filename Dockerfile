@@ -8,11 +8,9 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY pnpm-lock.yaml ./
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm
-RUN pnpm install --frozen-lockfile
+# Install dependencies
+RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -31,6 +29,8 @@ ARG SUPABASE_SERVICE_ROLE_KEY
 ARG NEXT_PUBLIC_WHATSAPP_SUPPORT_GROUP_URL
 ARG RESEND_API_KEY
 ARG NEXT_PUBLIC_APP_URL
+ARG DATABASE_URL
+ARG DIRECT_URL
 
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -41,10 +41,14 @@ ENV SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY
 ENV NEXT_PUBLIC_WHATSAPP_SUPPORT_GROUP_URL=$NEXT_PUBLIC_WHATSAPP_SUPPORT_GROUP_URL
 ENV RESEND_API_KEY=$RESEND_API_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV DATABASE_URL=$DATABASE_URL
+ENV DIRECT_URL=$DIRECT_URL
+
+# Generate Prisma Client
+RUN npx prisma generate
 
 # Build the application
-RUN npm install -g pnpm
-RUN pnpm build
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import db from "@/lib/db"
 import { redirect } from 'next/navigation'
 import { ManagerDashboard as ManagerDashboardComponent } from '@/components/manager/manager-dashboard'
 
@@ -12,11 +13,12 @@ export default async function ManagerDashboard() {
   }
 
   // Check if user is a manager
-  const { data: manager } = await supabase
-    .from("managers")
-    .select("id")
-    .eq("email", user.email)
-    .single()
+  const managers = await db.managers.findMany({
+    where: { email: user.email },
+    select: { id: true },
+    take: 1,
+  })
+  const manager = managers[0]
 
   if (!manager) {
     redirect("/admin")

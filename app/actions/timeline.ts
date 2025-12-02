@@ -1,6 +1,7 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import db from "@/lib/db"
+import { Prisma } from "@prisma/client"
 import type { TimelineEntry, TimelineEventType, TimelineEventData } from "@/lib/types"
 
 /**
@@ -14,20 +15,15 @@ export async function createTimelineEntry(
   comment?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
-
-    const { error } = await supabase.from("request_timeline").insert({
-      request_id: requestId,
-      event_type: eventType,
-      event_data: eventData || null,
-      comment: comment || null,
-      created_by: createdBy,
+    await db.request_timeline.create({
+      data: {
+        request_id: requestId,
+        event_type: eventType,
+        event_data: eventData || Prisma.JsonNull,
+        comment: comment || null,
+        created_by: createdBy,
+      },
     })
-
-    if (error) {
-      console.error("Error creating timeline entry:", error)
-      return { success: false, error: error.message }
-    }
 
     return { success: true }
   } catch (error) {
@@ -56,20 +52,23 @@ export async function getRequestTimeline(requestId: string): Promise<{
   error?: string
 }> {
   try {
-    const supabase = await createClient()
+    const data = await db.request_timeline.findMany({
+      where: {
+        request_id: requestId,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    })
 
-    const { data, error } = await supabase
-      .from("request_timeline")
-      .select("*")
-      .eq("request_id", requestId)
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      console.error("Error fetching timeline:", error)
-      return { success: false, error: error.message }
+    return {
+      success: true,
+      data: data.map((entry) => ({
+        ...entry,
+        created_at: entry.created_at?.toISOString() ?? new Date().toISOString(),
+        event_data: entry.event_data as TimelineEventData | null,
+      })) as TimelineEntry[],
     }
-
-    return { success: true, data: data as TimelineEntry[] }
   } catch (error) {
     console.error("Error fetching timeline:", error)
     return { success: false, error: "Failed to fetch timeline" }

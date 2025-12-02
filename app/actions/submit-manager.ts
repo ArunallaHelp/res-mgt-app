@@ -1,10 +1,9 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import db from "@/lib/db"
 
 export async function submitManagerApplication(formData: FormData) {
   try {
-    const supabase = await createClient()
 
     // Personal Information
     const full_name = formData.get("full_name") as string
@@ -46,37 +45,34 @@ export async function submitManagerApplication(formData: FormData) {
     const preferences_limitations = formData.get("preferences_limitations") as string
     const comments = formData.get("comments") as string
 
-    const { error } = await supabase.from("managers").insert({
-      full_name,
-      email,
-      phone,
-      district,
-      nearest_town,
-      job_role,
-      other_role,
-      experience_years,
-      highest_qualification,
-      other_qualification,
-      professional_skills,
-      other_skill,
-      support_types,
-      grade_levels,
-      subjects,
-      other_subject,
-      available_days,
-      available_time_slots,
-      teaching_mode,
-      is_teacher,
-      support_methods,
-      volunteering_experience,
-      preferences_limitations,
-      comments,
+    await db.managers.create({
+      data: {
+        full_name,
+        email,
+        phone,
+        district,
+        nearest_town,
+        job_role,
+        other_role,
+        experience_years,
+        highest_qualification,
+        other_qualification,
+        professional_skills,
+        other_skill,
+        support_types,
+        grade_levels,
+        subjects,
+        other_subject,
+        available_days,
+        available_time_slots,
+        teaching_mode,
+        is_teacher,
+        support_methods,
+        volunteering_experience,
+        preferences_limitations,
+        comments,
+      },
     })
-
-    if (error) {
-      console.error("Supabase error:", error)
-      return { success: false, error: "Failed to submit application. Please try again." }
-    }
 
     return { success: true }
   } catch (error) {

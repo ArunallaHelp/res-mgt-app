@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
+import db from "@/lib/db"
 import { redirect } from "next/navigation"
 import { ManagerSettingsForm } from "@/components/manager/manager-settings-form"
 import type { ManagerApplication } from "@/lib/types"
@@ -14,24 +14,29 @@ export default async function ManagerSettingsPage() {
     redirect("/manager/login")
   }
 
-  const supabaseAdmin = createAdminClient()
-  const { data: manager, error } = await supabaseAdmin
-    .from("managers")
-    .select("*")
-    .eq("email", user.email)
-    .single()
+  const managers = await db.managers.findMany({
+    where: { email: user.email },
+    take: 1,
+  })
+  const manager = managers[0]
 
-  if (error || !manager) {
+  if (!manager) {
     // If manager record not found but user is logged in, maybe redirect to setup or show error
     // For now, let's assume if they are logged in they should have a record or we redirect to dashboard
     redirect("/manager/dashboard")
+  }
+
+  const formattedManager = {
+    ...manager,
+    created_at: manager.created_at?.toISOString() ?? new Date().toISOString(),
+    otp_expires_at: manager.otp_expires_at?.toISOString() ?? null,
   }
 
   return (
     <div className="min-h-screen bg-background">
       <ManagerHeader userEmail={user.email} />
       <div className="container py-12">
-        <ManagerSettingsForm initialData={manager as ManagerApplication} />
+        <ManagerSettingsForm initialData={formattedManager as ManagerApplication} />
       </div>
     </div>
   )

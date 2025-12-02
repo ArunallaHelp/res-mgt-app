@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import db from "@/lib/db"
 
 function generateReferenceCode(): string {
   const year = new Date().getFullYear()
@@ -10,7 +10,7 @@ function generateReferenceCode(): string {
 
 export async function submitRequest(formData: FormData) {
   try {
-    const supabase = await createClient()
+
 
     const name = formData.get("name") as string
     const birth_year = Number.parseInt(formData.get("birth_year") as string, 10)
@@ -35,28 +35,25 @@ export async function submitRequest(formData: FormData) {
     // Generate unique reference code
     const reference_code = generateReferenceCode()
 
-    const { error } = await supabase.from("requests").insert({
-      reference_code,
-      name,
-      birth_year,
-      district,
-      nearest_town,
-      phone,
-      email,
-      grade,
-      exam_year,
-      subjects,
-      flood_impact,
-      support_needed,
-      status: "new",
-      verification_status: "unverified",
-      priority: "medium",
+    await db.requests.create({
+      data: {
+        reference_code,
+        name,
+        birth_year: birth_year.toString(),
+        district,
+        nearest_town,
+        phone,
+        email,
+        grade,
+        exam_year,
+        subjects,
+        flood_impact,
+        support_needed,
+        status: "new",
+        verification_status: "unverified",
+        priority: "medium",
+      },
     })
-
-    if (error) {
-      console.error("Supabase error:", error)
-      return { success: false, error: "Failed to submit request. Please try again." }
-    }
 
     return { success: true, referenceCode: reference_code }
   } catch (error) {

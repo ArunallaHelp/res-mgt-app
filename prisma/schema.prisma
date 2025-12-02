@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model manager_group_members {
+  group_id       String         @db.Uuid
+  manager_id     String         @db.Uuid
+  added_at       DateTime?      @default(now()) @db.Timestamptz(6)
+  manager_groups manager_groups @relation(fields: [group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  managers       managers       @relation(fields: [manager_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([group_id, manager_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model manager_groups {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                  String
+  description           String?
+  created_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  manager_group_members manager_group_members[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model managers {
+  id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  full_name               String
+  email                   String
+  phone                   String
+  district                String
+  nearest_town            String
+  job_role                String
+  other_role              String?
+  experience_years        String
+  highest_qualification   String
+  other_qualification     String?
+  professional_skills     String[]
+  other_skill             String?
+  support_types           String[]
+  grade_levels            String[]
+  subjects                String
+  other_subject           String?
+  available_days          String[]
+  available_time_slots    String[]
+  teaching_mode           String
+  support_methods         String[]
+  volunteering_experience String?
+  preferences_limitations String?
+  comments                String?
+  is_teacher              Boolean?                @default(false)
+  verification_status     verification_status?    @default(unverified)
+  created_at              DateTime?               @default(now()) @db.Timestamptz(6)
+  user_id                 String?                 @db.Uuid
+  otp_code                String?
+  otp_expires_at          DateTime?               @db.Timestamptz(6)
+  tags                    String[]                @default([])
+  manager_group_members   manager_group_members[]
+
+  @@index([created_at(sort: Desc)], map: "idx_managers_created_at")
+  @@index([district], map: "idx_managers_district")
+  @@index([email], map: "idx_managers_email")
+  @@index([phone], map: "idx_managers_phone")
+  @@index([user_id], map: "idx_managers_user_id")
+  @@index([verification_status], map: "idx_managers_verification_status")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model request_timeline {
+  id         String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  request_id String              @db.Uuid
+  event_type timeline_event_type
+  event_data Json?
+  comment    String?
+  created_by String
+  created_at DateTime?           @default(now()) @db.Timestamptz(6)
+  requests   requests            @relation(fields: [request_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_timeline_created_at")
+  @@index([event_type], map: "idx_timeline_event_type")
+  @@index([request_id], map: "idx_timeline_request_id")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model requests {
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reference_code      String               @unique
+  name                String
+  district            String
+  phone               String
+  email               String?
+  grade               String
+  exam_year           String
+  subjects            String
+  flood_impact        String
+  support_needed      String[]
+  status              request_status?      @default(new)
+  verification_status verification_status? @default(unverified)
+  priority            priority_level?      @default(medium)
+  admin_notes         String?
+  created_at          DateTime?            @default(now()) @db.Timestamptz(6)
+  user_id             String?              @db.Uuid
+  birth_year          String?
+  nearest_town        String?
+  request_timeline    request_timeline[]
+
+  @@index([created_at(sort: Desc)], map: "idx_requests_created_at")
+  @@index([district], map: "idx_requests_district")
+  @@index([reference_code], map: "idx_requests_reference_code")
+  @@index([status], map: "idx_requests_status")
+  @@index([user_id], map: "idx_requests_user_id")
+  @@index([verification_status], map: "idx_requests_verification_status")
+}
+
+enum priority_level {
+  low
+  medium
+  high
+}
+
+enum request_status {
+  new
+  in_progress
+  completed
+}
+
+enum timeline_event_type {
+  status_change
+  verification_change
+  priority_change
+  comment
+  note
+  created
+}
+
+enum verification_status {
+  unverified
+  pending
+  verified
+}

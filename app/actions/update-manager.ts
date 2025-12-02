@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
+import db from "@/lib/db"
 import { revalidatePath } from "next/cache"
 
 export async function updateManagerProfile(formData: FormData) {
@@ -53,10 +53,11 @@ export async function updateManagerProfile(formData: FormData) {
     const preferences_limitations = formData.get("preferences_limitations") as string
     const comments = formData.get("comments") as string
 
-    const supabaseAdmin = createAdminClient()
-    const { error } = await supabaseAdmin
-      .from("managers")
-      .update({
+    await db.managers.updateMany({
+      where: {
+        email: user.email,
+      },
+      data: {
         full_name,
         // phone, // Phone cannot be changed
         district,
@@ -80,13 +81,8 @@ export async function updateManagerProfile(formData: FormData) {
         volunteering_experience,
         preferences_limitations,
         comments,
-      })
-      .eq("email", user.email)
-
-    if (error) {
-      console.error("Supabase error:", error)
-      return { success: false, error: "Failed to update profile. Please try again." }
-    }
+      },
+    })
 
     revalidatePath("/manager/settings")
     return { success: true }

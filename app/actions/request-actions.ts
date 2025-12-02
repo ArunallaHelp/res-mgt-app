@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import db from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import type { RequestStatus, VerificationStatus, PriorityLevel } from "@/lib/types"
 import { trackStatusChange, trackVerificationChange, trackPriorityChange } from "./timeline"
@@ -14,28 +14,23 @@ export async function updateRequestStatus(
   userEmail: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
-
     // Get current status
-    const { data: request } = await supabase
-      .from("requests")
-      .select("status")
-      .eq("id", requestId)
-      .single()
+    const request = await db.requests.findUnique({
+      where: { id: requestId },
+      select: { status: true },
+    })
+    
     if (!request) {
       return { success: false, error: "Request not found" }
     }
 
-    const oldStatus = request.status
+    const oldStatus = request.status || "new"
 
     // Update status
-    const { error } = await supabase
-      .from("requests")
-      .update({ status: newStatus })
-      .eq("id", requestId)
-    if (error) {
-      return { success: false, error: error.message }
-    }
+    await db.requests.update({
+      where: { id: requestId },
+      data: { status: newStatus },
+    })
 
     // Create timeline entry
     await trackStatusChange(requestId, oldStatus, newStatus, userEmail)
@@ -57,30 +52,23 @@ export async function updateVerificationStatus(
   userEmail: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
-
     // Get current verification status
-    const { data: request } = await supabase
-      .from("requests")
-      .select("verification_status")
-      .eq("id", requestId)
-      .single()
+    const request = await db.requests.findUnique({
+      where: { id: requestId },
+      select: { verification_status: true },
+    })
 
     if (!request) {
       return { success: false, error: "Request not found" }
     }
 
-    const oldStatus = request.verification_status
+    const oldStatus = request.verification_status || "unverified"
 
     // Update verification status
-    const { error } = await supabase
-      .from("requests")
-      .update({ verification_status: newStatus })
-      .eq("id", requestId)
-
-    if (error) {
-      return { success: false, error: error.message }
-    }
+    await db.requests.update({
+      where: { id: requestId },
+      data: { verification_status: newStatus },
+    })
 
     // Create timeline entry
     await trackVerificationChange(requestId, oldStatus, newStatus, userEmail)
@@ -102,30 +90,23 @@ export async function updatePriority(
   userEmail: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
-
     // Get current priority
-    const { data: request } = await supabase
-      .from("requests")
-      .select("priority")
-      .eq("id", requestId)
-      .single()
+    const request = await db.requests.findUnique({
+      where: { id: requestId },
+      select: { priority: true },
+    })
 
     if (!request) {
       return { success: false, error: "Request not found" }
     }
 
-    const oldPriority = request.priority
+    const oldPriority = request.priority || "medium"
 
     // Update priority
-    const { error } = await supabase
-      .from("requests")
-      .update({ priority: newPriority })
-      .eq("id", requestId)
-
-    if (error) {
-      return { success: false, error: error.message }
-    }
+    await db.requests.update({
+      where: { id: requestId },
+      data: { priority: newPriority },
+    })
 
     // Create timeline entry
     await trackPriorityChange(requestId, oldPriority, newPriority, userEmail)

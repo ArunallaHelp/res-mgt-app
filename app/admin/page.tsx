@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import db from "@/lib/db"
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
 import { getAllManagers } from "@/app/actions/managers"
 import { getManagerGroups } from "@/app/actions/manager-groups"
@@ -20,11 +21,12 @@ export default async function AdminPage() {
   }
 
   // Check if user is a manager
-  const { data: manager } = await supabase
-    .from("managers")
-    .select("id")
-    .eq("email", user.email)
-    .single()
+  const managersList = await db.managers.findMany({
+    where: { email: user.email },
+    select: { id: true },
+    take: 1,
+  })
+  const manager = managersList[0]
 
   if (manager) {
     redirect("/manager/dashboard")

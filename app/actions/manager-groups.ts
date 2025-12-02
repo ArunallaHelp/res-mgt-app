@@ -1,105 +1,115 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import db from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { ManagerGroup } from "@/lib/types"
 
 export async function createManagerGroup(name: string, description?: string) {
-  const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from("manager_groups")
-    .insert({ name, description })
-    .select()
-    .single()
-
-  if (error) throw new Error(error.message)
+  const data = await db.manager_groups.create({
+    data: {
+      name,
+      description,
+    },
+  })
   
   revalidatePath("/admin")
-  return data as ManagerGroup
+  return {
+    ...data,
+    created_at: data.created_at?.toISOString() ?? new Date().toISOString(),
+    updated_at: data.updated_at?.toISOString() ?? new Date().toISOString(),
+  } as ManagerGroup
 }
 
 export async function deleteManagerGroup(id: string) {
-  const supabase = await createClient()
-  
-  const { error } = await supabase
-    .from("manager_groups")
-    .delete()
-    .eq("id", id)
-
-  if (error) throw new Error(error.message)
+  await db.manager_groups.delete({
+    where: {
+      id,
+    },
+  })
   
   revalidatePath("/admin")
 }
 
 export async function addManagerToGroup(groupId: string, managerId: string) {
-  const supabase = await createClient()
-  
-  const { error } = await supabase
-    .from("manager_group_members")
-    .insert({ group_id: groupId, manager_id: managerId })
-
-  if (error) throw new Error(error.message)
+  await db.manager_group_members.create({
+    data: {
+      group_id: groupId,
+      manager_id: managerId,
+    },
+  })
   
   revalidatePath("/admin")
   revalidatePath(`/admin/managers/groups/${groupId}`)
 }
 
 export async function removeManagerFromGroup(groupId: string, managerId: string) {
-  const supabase = await createClient()
-  
-  const { error } = await supabase
-    .from("manager_group_members")
-    .delete()
-    .eq("group_id", groupId)
-    .eq("manager_id", managerId)
-
-  if (error) throw new Error(error.message)
+  await db.manager_group_members.delete({
+    where: {
+      group_id_manager_id: {
+        group_id: groupId,
+        manager_id: managerId,
+      },
+    },
+  })
   
   revalidatePath("/admin")
   revalidatePath(`/admin/managers/groups/${groupId}`)
 }
 
 export async function getManagerGroups() {
-  const supabase = await createClient()
+  const data = await db.manager_groups.findMany({
+    orderBy: {
+      created_at: "desc",
+    },
+  })
   
-  const { data, error } = await supabase
-    .from("manager_groups")
-    .select("*")
-    .order("created_at", { ascending: false })
-
-  if (error) throw new Error(error.message)
-  
-  return data as ManagerGroup[]
+  return data.map((group) => ({
+    ...group,
+    created_at: group.created_at?.toISOString() ?? new Date().toISOString(),
+    updated_at: group.updated_at?.toISOString() ?? new Date().toISOString(),
+  })) as ManagerGroup[]
 }
 
 export async function getManagerGroup(id: string) {
-  const supabase = await createClient()
+  const data = await db.manager_groups.findUnique({
+    where: {
+      id,
+    },
+  })
   
-  const { data, error } = await supabase
-    .from("manager_groups")
-    .select("*")
-    .eq("id", id)
-    .single()
+  if (!data) return null
 
-  if (error) return null
-  
-  return data as ManagerGroup
+  return {
+    ...data,
+    created_at: data.created_at?.toISOString() ?? new Date().toISOString(),
+    updated_at: data.updated_at?.toISOString() ?? new Date().toISOString(),
+  } as ManagerGroup
 }
 
 export async function getGroupMembers(groupId: string) {
-  const supabase = await createClient()
+  const data = await db.manager_group_members.findMany({
+    where: {
+      group_id: groupId,
+    },
+    include: {
+      managers: true,
+    },
+  })
   
-  const { data, error } = await supabase
-    .from("manager_group_members")
-    .select(`
-      manager_id,
-      added_at,
-      manager:managers(*)
-    `)
-    .eq("group_id", groupId)
-
-  if (error) throw new Error(error.message)
-  
-  return data
+  return data.map((item) => ({
+    ...item,
+    added_at: item.added_at?.toISOString() ?? new Date().toISOString(),
+    manager: {
+      ...item.managers,
+      created_at: item.managers.created_at?.toISOString() ?? new Date().toISOString(),
+      // managers table doesn't have updated_at in the schema I saw? 
+      // Let me check schema again. 
+      // managers model: created_at DateTime? ... no updated_at.
+      // But ManagerApplication type has created_at.
+      // Wait, getGroupMembers returns `manager:managers(*)` in Supabase.
+      // The type of `manager` property in the return value isn't explicitly defined in the function signature, it just returns `data`.
+      // So I should just convert dates for the manager object too if I want to be safe, or just let it be if the consumer handles it.
+      // Given I'm converting others, I should convert here too.
+    },
+  }))
 }

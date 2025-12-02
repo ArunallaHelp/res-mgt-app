@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import db from "@/lib/db"
 import { sendOtpEmail } from '@/lib/email'
 import { randomInt } from 'crypto'
 
@@ -11,17 +12,18 @@ function generateOtp() {
 }
 
 export async function sendVerificationEmail(email: string) {
-  const supabase = createAdminClient()
+  // const supabase = createAdminClient() // Not needed for DB
 
   try {
     // 1. Check if manager exists
-    const { data: manager, error } = await supabase
-      .from('managers')
-      .select('id, email, verification_status')
-      .eq('email', email)
-      .single()
+    const managers = await db.managers.findMany({
+      where: { email },
+      select: { id: true, email: true, verification_status: true },
+      take: 1,
+    })
+    const manager = managers[0]
 
-    if (error || !manager) {
+    if (!manager) {
       return {
         success: false,
         error: 'Email not found in manager records. Please contact support.'
@@ -33,21 +35,13 @@ export async function sendVerificationEmail(email: string) {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString() // 15 mins
 
     // 3. Store OTP in DB
-    const { error: updateError } = await supabase
-      .from('managers')
-      .update({ 
-        otp_code: otp, 
-        otp_expires_at: expiresAt 
-      })
-      .eq('id', manager.id)
-
-    if (updateError) {
-      console.error('Error storing OTP:', updateError)
-      return {
-        success: false,
-        error: 'Failed to generate verification code.'
-      }
-    }
+    await db.managers.update({
+      where: { id: manager.id },
+      data: {
+        otp_code: otp,
+        otp_expires_at: expiresAt,
+      },
+    })
 
     // 4. Send Email
     const emailResult = await sendOtpEmail(email, otp)
@@ -72,16 +66,17 @@ export async function sendVerificationEmail(email: string) {
 }
 
 export async function verifyManagerOtp(email: string, otp: string) {
-  const supabase = createAdminClient()
+  // const supabase = createAdminClient() // Not needed for DB
 
   try {
-    const { data: manager, error } = await supabase
-      .from('managers')
-      .select('otp_code, otp_expires_at')
-      .eq('email', email)
-      .single()
+    const managers = await db.managers.findMany({
+      where: { email },
+      select: { otp_code: true, otp_expires_at: true },
+      take: 1,
+    })
+    const manager = managers[0]
 
-    if (error || !manager) {
+    if (!manager) {
       return { success: false, error: 'Invalid request.' }
     }
 
@@ -89,7 +84,7 @@ export async function verifyManagerOtp(email: string, otp: string) {
       return { success: false, error: 'Invalid verification code.' }
     }
 
-    if (new Date(manager.otp_expires_at) < new Date()) {
+    if (!manager.otp_expires_at || new Date(manager.otp_expires_at) < new Date()) {
       return { success: false, error: 'Verification code expired.' }
     }
 
@@ -125,7 +120,7 @@ export async function createManagerAccount(email: string, password: string, otp:
          // Requirement: "if email verified then open password add page to create account"
          // If account exists, maybe we should update it?
          // Let's try updating if create fails.
-         const { data: user } = await supabase.from('auth.users').select('id').eq('email', email).single()
+         // const { data: user } = await supabase.from('auth.users').select('id').eq('email', email).single()
          // Note: accessing auth.users directly via client is not standard, better to use admin.updateUserById if we had ID.
          // But we don't have ID easily without listing.
          // Let's just return the error for now, assuming clean slate for "onboarding".
@@ -135,19 +130,16 @@ export async function createManagerAccount(email: string, password: string, otp:
     }
 
     // 3. Update Manager Record (Clear OTP, set verified)
-    const { error: updateError } = await supabase
-      .from('managers')
-      .update({ 
+    await db.managers.updateMany({
+      where: { email },
+      data: {
         verification_status: 'verified',
         otp_code: null,
-        otp_expires_at: null
-      })
-      .eq('email', email)
+        otp_expires_at: null,
+      },
+    })
 
-    if (updateError) {
-      console.error('Error updating manager status:', updateError)
-      // Non-fatal, user is created.
-    }
+
 
     // 4. Auto-login
     const supabaseServer = await createClient()
