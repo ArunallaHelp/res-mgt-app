@@ -55,6 +55,10 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 We welcome contributions to Arunalla! Please see our [CONTRIBUTING.md](./CONTRIBUTING.md) for details on how to get started, our development workflow, and code of conduct.
 
+## Community & Support
+
+Join our project WhatsApp group for updates and support: [https://chat.whatsapp.com/DE202tI54yhLT2PGrZxXMr](https://chat.whatsapp.com/DE202tI54yhLT2PGrZxXMr)
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENSE) file for details.
