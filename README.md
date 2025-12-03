@@ -29,7 +29,7 @@ This application requires environment variables to connect to Supabase. Follow t
 
 3. **Update `.env.local`** with your actual credentials
 
-📖 **For detailed setup instructions, see [README.env.md](./README.env.md)**
+📖 **For detailed setup instructions, see [.env.example](./.env.example)**
 
 ### Installation
 

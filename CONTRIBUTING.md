@@ -32,7 +32,7 @@ First off, thank you for considering contributing to Arunalla! It's people like 
    cp .env.example .env.local
    ```
 2. Fill in the environment variables in `.env.local`. You will need Supabase credentials.
-   - See [README.env.md](./README.env.md) for detailed instructions on where to find these values.
+   - See [.env.example](./.env.example) for detailed instructions on where to find these values.
 
 ### Database Setup
 
