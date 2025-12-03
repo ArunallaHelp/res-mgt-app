@@ -1,11 +1,17 @@
-import { createAsyncThunk } from '@reduxjs/toolkit'
-import { createClient } from '@/lib/supabase/client'
-import type { RequestStatus, VerificationStatus, PriorityLevel, SupportRequest } from '@/lib/types'
+import { createAsyncThunk } from "@reduxjs/toolkit";
+
+import type {
+  RequestStatus,
+  VerificationStatus,
+  PriorityLevel,
+  SupportRequest,
+} from "@/lib/types";
 import {
   updateRequestStatus,
   updateVerificationStatus,
   updatePriority,
-} from '@/app/actions/request-actions'
+  fetchRequests,
+} from "@/app/actions/request-actions";
 import {
   updateRequestFieldOptimistic,
   confirmRequestUpdate,
@@ -13,269 +19,273 @@ import {
   setRequestLoading,
   setRequestsList,
   setListLoading,
-} from '../slices/requestsSlice'
-import { triggerTimelineRefresh } from '../slices/timelineSlice'
-import { addNotification } from '../slices/uiSlice'
-import type { RootState } from '../index'
+} from "../slices/requestsSlice";
+import { triggerTimelineRefresh } from "../slices/timelineSlice";
+import { addNotification } from "../slices/uiSlice";
+import type { RootState } from "../index";
 
 interface UpdateStatusParams {
-  requestId: string
-  newStatus: RequestStatus
-  userEmail: string
+  requestId: string;
+  newStatus: RequestStatus;
+  userEmail: string;
 }
 
 interface UpdateVerificationParams {
-  requestId: string
-  newStatus: VerificationStatus
-  userEmail: string
+  requestId: string;
+  newStatus: VerificationStatus;
+  userEmail: string;
 }
 
 interface UpdatePriorityParams {
-  requestId: string
-  newPriority: PriorityLevel
-  userEmail: string
+  requestId: string;
+  newPriority: PriorityLevel;
+  userEmail: string;
 }
 
 /**
  * Fetch requests with filters
  */
+/**
+ * Fetch requests with filters
+ */
 export const fetchRequestsThunk = createAsyncThunk(
-  'requests/fetchList',
+  "requests/fetchList",
   async (_, { dispatch, getState, rejectWithValue }) => {
     try {
-      dispatch(setListLoading(true))
-      
-      const state = getState() as RootState
-      const filters = state.ui.filters
-      
-      const supabase = createClient()
-      let query = supabase.from("requests").select("*").order("created_at", { ascending: false })
+      dispatch(setListLoading(true));
 
-      if (filters.district !== "all") {
-        query = query.eq("district", filters.district)
-      }
-      if (filters.status !== "all") {
-        query = query.eq("status", filters.status)
-      }
-      if (filters.verification !== "all") {
-        query = query.eq("verification_status", filters.verification)
-      }
-      if (filters.priority !== "all") {
-        query = query.eq("priority", filters.priority)
+      const state = getState() as RootState;
+      const filters = state.ui.filters;
+
+      const result = await fetchRequests({
+        district: filters.district,
+        status: filters.status,
+        verification: filters.verification,
+        priority: filters.priority,
+        search: filters.search,
+      });
+
+      if (!result.success || !result.data) {
+        throw new Error(result.error || "Failed to fetch requests");
       }
 
-      const { data, error } = await query
-
-      if (error) {
-        throw error
-      }
-
-      // Client-side search filtering (since Supabase doesn't support complex OR queries easily on client)
-      let filteredData = data as SupportRequest[]
-      if (filters.search) {
-        const searchQuery = filters.search.toLowerCase()
-        filteredData = filteredData.filter((request) => 
-          request.name.toLowerCase().includes(searchQuery) ||
-          request.reference_code.toLowerCase().includes(searchQuery) ||
-          request.phone.includes(searchQuery) ||
-          (request.email && request.email.toLowerCase().includes(searchQuery))
-        )
-      }
-
-      dispatch(setRequestsList(filteredData))
-      return filteredData
+      const filteredData = result.data as SupportRequest[];
+      dispatch(setRequestsList(filteredData));
+      return filteredData;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      dispatch(addNotification({ type: 'error', message: `Failed to fetch requests: ${errorMessage}` }))
-      return rejectWithValue(errorMessage)
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      dispatch(
+        addNotification({
+          type: "error",
+          message: `Failed to fetch requests: ${errorMessage}`,
+        })
+      );
+      return rejectWithValue(errorMessage);
     } finally {
-      dispatch(setListLoading(false))
+      dispatch(setListLoading(false));
     }
   }
-)
+);
 
 /**
  * Update request status with optimistic updates
  */
 export const updateRequestStatusThunk = createAsyncThunk(
-  'requests/updateStatus',
+  "requests/updateStatus",
   async (params: UpdateStatusParams, { dispatch, rejectWithValue }) => {
-    const { requestId, newStatus, userEmail } = params
+    const { requestId, newStatus, userEmail } = params;
 
     try {
       // 1. Set loading state
-      dispatch(setRequestLoading({ requestId, loading: true }))
+      dispatch(setRequestLoading({ requestId, loading: true }));
 
       // 2. Optimistic update
       dispatch(
         updateRequestFieldOptimistic({
           requestId,
-          field: 'status',
+          field: "status",
           value: newStatus,
         })
-      )
+      );
 
       // 3. Call server action
-      const result = await updateRequestStatus(requestId, newStatus, userEmail)
+      const result = await updateRequestStatus(requestId, newStatus, userEmail);
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to update status')
+        throw new Error(result.error || "Failed to update status");
       }
 
       // 4. Confirm the update
-      dispatch(confirmRequestUpdate({ requestId, updates: { status: newStatus } }))
+      dispatch(
+        confirmRequestUpdate({ requestId, updates: { status: newStatus } })
+      );
 
       // 5. Refresh timeline
-      dispatch(triggerTimelineRefresh({ requestId }))
+      dispatch(triggerTimelineRefresh({ requestId }));
 
       // 6. Show success notification
       dispatch(
         addNotification({
-          type: 'success',
-          message: 'Status updated successfully',
+          type: "success",
+          message: "Status updated successfully",
         })
-      )
+      );
 
-      return { requestId, newStatus }
+      return { requestId, newStatus };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
 
       // Rollback optimistic update
-      dispatch(rollbackRequestUpdate({ requestId, error: errorMessage }))
+      dispatch(rollbackRequestUpdate({ requestId, error: errorMessage }));
 
       // Show error notification
       dispatch(
         addNotification({
-          type: 'error',
+          type: "error",
           message: `Failed to update status: ${errorMessage}`,
         })
-      )
+      );
 
-      return rejectWithValue(errorMessage)
+      return rejectWithValue(errorMessage);
     }
   }
-)
+);
 
 /**
  * Update verification status with optimistic updates
  */
 export const updateVerificationStatusThunk = createAsyncThunk(
-  'requests/updateVerification',
+  "requests/updateVerification",
   async (params: UpdateVerificationParams, { dispatch, rejectWithValue }) => {
-    const { requestId, newStatus, userEmail } = params
+    const { requestId, newStatus, userEmail } = params;
 
     try {
       // 1. Set loading state
-      dispatch(setRequestLoading({ requestId, loading: true }))
+      dispatch(setRequestLoading({ requestId, loading: true }));
 
       // 2. Optimistic update
       dispatch(
         updateRequestFieldOptimistic({
           requestId,
-          field: 'verification_status',
+          field: "verification_status",
           value: newStatus,
         })
-      )
+      );
 
       // 3. Call server action
-      const result = await updateVerificationStatus(requestId, newStatus, userEmail)
+      const result = await updateVerificationStatus(
+        requestId,
+        newStatus,
+        userEmail
+      );
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to update verification status')
+        throw new Error(result.error || "Failed to update verification status");
       }
 
       // 4. Confirm the update
-      dispatch(confirmRequestUpdate({ requestId, updates: { verification_status: newStatus } }))
+      dispatch(
+        confirmRequestUpdate({
+          requestId,
+          updates: { verification_status: newStatus },
+        })
+      );
 
       // 5. Refresh timeline
-      dispatch(triggerTimelineRefresh({ requestId }))
+      dispatch(triggerTimelineRefresh({ requestId }));
 
       // 6. Show success notification
       dispatch(
         addNotification({
-          type: 'success',
-          message: 'Verification status updated successfully',
+          type: "success",
+          message: "Verification status updated successfully",
         })
-      )
+      );
 
-      return { requestId, newStatus }
+      return { requestId, newStatus };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
 
       // Rollback optimistic update
-      dispatch(rollbackRequestUpdate({ requestId, error: errorMessage }))
+      dispatch(rollbackRequestUpdate({ requestId, error: errorMessage }));
 
       // Show error notification
       dispatch(
         addNotification({
-          type: 'error',
+          type: "error",
           message: `Failed to update verification: ${errorMessage}`,
         })
-      )
+      );
 
-      return rejectWithValue(errorMessage)
+      return rejectWithValue(errorMessage);
     }
   }
-)
+);
 
 /**
  * Update priority with optimistic updates
  */
 export const updatePriorityThunk = createAsyncThunk(
-  'requests/updatePriority',
+  "requests/updatePriority",
   async (params: UpdatePriorityParams, { dispatch, rejectWithValue }) => {
-    const { requestId, newPriority, userEmail } = params
+    const { requestId, newPriority, userEmail } = params;
 
     try {
       // 1. Set loading state
-      dispatch(setRequestLoading({ requestId, loading: true }))
+      dispatch(setRequestLoading({ requestId, loading: true }));
 
       // 2. Optimistic update
       dispatch(
         updateRequestFieldOptimistic({
           requestId,
-          field: 'priority',
+          field: "priority",
           value: newPriority,
         })
-      )
+      );
 
       // 3. Call server action
-      const result = await updatePriority(requestId, newPriority, userEmail)
+      const result = await updatePriority(requestId, newPriority, userEmail);
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to update priority')
+        throw new Error(result.error || "Failed to update priority");
       }
 
       // 4. Confirm the update
-      dispatch(confirmRequestUpdate({ requestId, updates: { priority: newPriority } }))
+      dispatch(
+        confirmRequestUpdate({ requestId, updates: { priority: newPriority } })
+      );
 
       // 5. Refresh timeline
-      dispatch(triggerTimelineRefresh({ requestId }))
+      dispatch(triggerTimelineRefresh({ requestId }));
 
       // 6. Show success notification
       dispatch(
         addNotification({
-          type: 'success',
-          message: 'Priority updated successfully',
+          type: "success",
+          message: "Priority updated successfully",
         })
-      )
+      );
 
-      return { requestId, newPriority }
+      return { requestId, newPriority };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
 
       // Rollback optimistic update
-      dispatch(rollbackRequestUpdate({ requestId, error: errorMessage }))
+      dispatch(rollbackRequestUpdate({ requestId, error: errorMessage }));
 
       // Show error notification
       dispatch(
         addNotification({
-          type: 'error',
+          type: "error",
           message: `Failed to update priority: ${errorMessage}`,
         })
-      )
+      );
 
-      return rejectWithValue(errorMessage)
+      return rejectWithValue(errorMessage);
     }
   }
-)
+);
