@@ -1,7 +1,6 @@
 import type React from "next"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { LanguageProvider } from "@/components/language-provider"
 import ReduxProvider from "@/components/providers/redux-provider"
@@ -14,7 +13,6 @@ export const metadata: Metadata = {
   title: "Arunalla - Flood Relief Education Support",
   description:
     "Education support for students affected by the 2025 Sri Lanka floods. Request help with books, tuition, mentoring, and exam preparation.",
-  generator: "v0.app",
   icons: {
     icon: [
       {
@@ -46,7 +44,6 @@ export default function RootLayout({
           <LanguageProvider>{children}</LanguageProvider>
         </ReduxProvider>
         <GoogleAnalytics />
-        <Analytics />
       </body>
     </html>
   )
