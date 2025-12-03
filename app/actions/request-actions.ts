@@ -16,11 +16,19 @@ import {
 /**
  * Update request status and create timeline entry
  */
+import { createClient } from "@/lib/supabase/server";
+
 export async function updateRequestStatus(
   requestId: string,
   newStatus: RequestStatus,
   userEmail: string
 ): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
   try {
     // Get current status
     const request = await db.requests.findUnique({
@@ -59,6 +67,12 @@ export async function updateVerificationStatus(
   newStatus: VerificationStatus,
   userEmail: string
 ): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
   try {
     // Get current verification status
     const request = await db.requests.findUnique({
@@ -97,6 +111,12 @@ export async function updatePriority(
   newPriority: PriorityLevel,
   userEmail: string
 ): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
   try {
     // Get current priority
     const request = await db.requests.findUnique({
@@ -137,6 +157,12 @@ export async function fetchRequests(filters: {
   priority: string;
   search: string;
 }): Promise<{ success: boolean; data?: any[]; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
   try {
     const where: any = {};
 

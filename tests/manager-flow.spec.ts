@@ -56,6 +56,7 @@ test.describe("Manager Flow", () => {
     await page.fill('input[name="subjects"]', "Mathematics");
 
     // 5. Availability
+    await page.keyboard.press("Escape"); // Close any open dropdowns
     await page.click('label:has-text("Saturday")');
     await page.click('label:has-text("Morning (8am – 12pm)")');
 

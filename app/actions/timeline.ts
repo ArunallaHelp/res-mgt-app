@@ -1,12 +1,18 @@
-"use server"
+"use server";
 
-import db from "@/lib/db"
-import { Prisma } from "@prisma/client"
-import type { TimelineEntry, TimelineEventType, TimelineEventData } from "@/lib/types"
+import db from "@/lib/db";
+import { Prisma } from "@prisma/client";
+import type {
+  TimelineEntry,
+  TimelineEventType,
+  TimelineEventData,
+} from "@/lib/types";
 
 /**
  * Create a timeline entry for a request
  */
+import { createClient } from "@/lib/supabase/server";
+
 export async function createTimelineEntry(
   requestId: string,
   eventType: TimelineEventType,
@@ -14,6 +20,12 @@ export async function createTimelineEntry(
   eventData?: TimelineEventData,
   comment?: string
 ): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
   try {
     await db.request_timeline.create({
       data: {
@@ -23,12 +35,12 @@ export async function createTimelineEntry(
         comment: comment || null,
         created_by: createdBy,
       },
-    })
+    });
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
-    console.error("Error creating timeline entry:", error)
-    return { success: false, error: "Failed to create timeline entry" }
+    console.error("Error creating timeline entry:", error);
+    return { success: false, error: "Failed to create timeline entry" };
   }
 }
 
@@ -40,17 +52,26 @@ export async function addTimelineComment(
   comment: string,
   createdBy: string
 ): Promise<{ success: boolean; error?: string }> {
-  return createTimelineEntry(requestId, "comment", createdBy, undefined, comment)
+  return createTimelineEntry(
+    requestId,
+    "comment",
+    createdBy,
+    undefined,
+    comment
+  );
 }
 
-/**
- * Get all timeline entries for a request
- */
 export async function getRequestTimeline(requestId: string): Promise<{
-  success: boolean
-  data?: TimelineEntry[]
-  error?: string
+  success: boolean;
+  data?: TimelineEntry[];
+  error?: string;
 }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
   try {
     const data = await db.request_timeline.findMany({
       where: {
@@ -59,7 +80,7 @@ export async function getRequestTimeline(requestId: string): Promise<{
       orderBy: {
         created_at: "desc",
       },
-    })
+    });
 
     return {
       success: true,
@@ -68,10 +89,10 @@ export async function getRequestTimeline(requestId: string): Promise<{
         created_at: entry.created_at?.toISOString() ?? new Date().toISOString(),
         event_data: entry.event_data as TimelineEventData | null,
       })) as TimelineEntry[],
-    }
+    };
   } catch (error) {
-    console.error("Error fetching timeline:", error)
-    return { success: false, error: "Failed to fetch timeline" }
+    console.error("Error fetching timeline:", error);
+    return { success: false, error: "Failed to fetch timeline" };
   }
 }
 
@@ -88,7 +109,7 @@ export async function trackStatusChange(
     field: "status",
     old_value: oldStatus,
     new_value: newStatus,
-  })
+  });
 }
 
 /**
@@ -104,7 +125,7 @@ export async function trackVerificationChange(
     field: "verification_status",
     old_value: oldStatus,
     new_value: newStatus,
-  })
+  });
 }
 
 /**
@@ -120,5 +141,5 @@ export async function trackPriorityChange(
     field: "priority",
     old_value: oldPriority,
     new_value: newPriority,
-  })
+  });
 }

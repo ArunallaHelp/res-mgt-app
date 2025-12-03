@@ -1,0 +1,318 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Volunteer Manager Registration" [level=1] [ref=e5]
+      - paragraph [ref=e6]: Join us in supporting students affected by the floods
+    - generic [ref=e7]:
+      - generic [ref=e9]: 1. Personal Information
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - generic [ref=e12]: Full Name *
+          - textbox "Full Name *" [ref=e13]:
+            - /placeholder: Enter your full name
+            - text: Test Manager
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - generic [ref=e16]: Email Address *
+            - textbox "Email Address *" [ref=e17]:
+              - /placeholder: your@email.com
+              - text: reg.1764738704026@example.com
+          - generic [ref=e18]:
+            - generic [ref=e19]: Mobile / WhatsApp Number *
+            - textbox "Mobile / WhatsApp Number *" [ref=e20]:
+              - /placeholder: 07X XXX XXXX
+              - text: "0771234567"
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: District *
+            - combobox [ref=e24]:
+              - generic: Colombo
+              - img
+            - combobox [ref=e25]
+          - generic [ref=e26]:
+            - generic [ref=e27]: Nearest Town *
+            - textbox "Nearest Town *" [ref=e28]:
+              - /placeholder: Enter nearest town
+              - text: Colombo 07
+    - generic [ref=e29]:
+      - generic [ref=e31]: 2. Professional Information
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: Current Role *
+            - combobox [ref=e36]:
+              - generic: Student
+              - img
+            - combobox [ref=e37]
+          - generic [ref=e38]:
+            - generic [ref=e39]: Years of Experience *
+            - combobox [ref=e40]:
+              - generic: 0–1 years
+              - img
+            - combobox [ref=e41]
+        - generic [ref=e42]:
+          - generic [ref=e43]: Highest Qualification *
+          - combobox [ref=e44]:
+            - generic: O/L
+            - img
+          - combobox [ref=e45]
+        - generic [ref=e46]:
+          - generic [ref=e47]: Professional Skills (Select all that apply) *
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - checkbox "Teaching" [checked] [ref=e50]:
+                - generic:
+                  - img
+              - checkbox [checked]
+              - generic [ref=e51]: Teaching
+            - generic [ref=e52]:
+              - checkbox "Mentoring / Counselling" [ref=e53]
+              - checkbox
+              - generic [ref=e54]: Mentoring / Counselling
+            - generic [ref=e55]:
+              - checkbox "Content Creation" [ref=e56]
+              - checkbox
+              - generic [ref=e57]: Content Creation
+            - generic [ref=e58]:
+              - checkbox "Paper Marking" [ref=e59]
+              - checkbox
+              - generic [ref=e60]: Paper Marking
+            - generic [ref=e61]:
+              - checkbox "Language Skills" [ref=e62]
+              - checkbox
+              - generic [ref=e63]: Language Skills
+            - generic [ref=e64]:
+              - checkbox "Technical Skills (IT / AI / Coding)" [ref=e65]
+              - checkbox
+              - generic [ref=e66]: Technical Skills (IT / AI / Coding)
+            - generic [ref=e67]:
+              - checkbox "Other" [ref=e68]
+              - checkbox
+              - generic [ref=e69]: Other
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - generic [ref=e72]: 3. Support Type
+        - generic [ref=e73]: What kind of help can you offer?
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - checkbox "Academic Teaching" [checked] [ref=e77]:
+            - generic:
+              - img
+          - checkbox [checked]
+          - generic [ref=e78]: Academic Teaching
+        - generic [ref=e79]:
+          - checkbox "Non-teaching Support" [ref=e80]
+          - checkbox
+          - generic [ref=e81]: Non-teaching Support
+        - generic [ref=e82]:
+          - checkbox "Community Support" [ref=e83]
+          - checkbox
+          - generic [ref=e84]: Community Support
+        - generic [ref=e85]:
+          - checkbox "Resource/Material Support" [ref=e86]
+          - checkbox
+          - generic [ref=e87]: Resource/Material Support
+        - generic [ref=e88]:
+          - checkbox "Administrative Support" [ref=e89]
+          - checkbox
+          - generic [ref=e90]: Administrative Support
+    - generic [ref=e91]:
+      - generic [ref=e93]: 4. Subjects & Levels
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]: Grade Levels *
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - checkbox "Grade 6–9" [ref=e99]
+              - checkbox
+              - generic [ref=e100]: Grade 6–9
+            - generic [ref=e101]:
+              - checkbox "O/L" [checked] [ref=e102]:
+                - generic:
+                  - img
+              - checkbox [checked]
+              - generic [ref=e103]: O/L
+            - generic [ref=e104]:
+              - checkbox "A/L" [ref=e105]
+              - checkbox
+              - generic [ref=e106]: A/L
+            - generic [ref=e107]:
+              - checkbox "University / Professional" [ref=e108]
+              - checkbox
+              - generic [ref=e109]: University / Professional
+        - generic [ref=e110]:
+          - generic [ref=e111]: Subjects *
+          - textbox "Subjects *" [ref=e112]:
+            - /placeholder: e.g. Maths, Science, English, Commerce, ICT (Separate by commas)
+            - text: Mathematics
+        - generic [ref=e113]:
+          - generic [ref=e114]: Other Subject (Optional)
+          - textbox "Other Subject (Optional)" [ref=e115]:
+            - /placeholder: Any other subjects...
+    - generic [ref=e116]:
+      - generic [ref=e118]: 5. Availability
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - generic [ref=e121]: Preferred Days *
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - checkbox "Monday" [ref=e124]
+              - checkbox
+              - generic [ref=e125]: Monday
+            - generic [ref=e126]:
+              - checkbox "Tuesday" [ref=e127]
+              - checkbox
+              - generic [ref=e128]: Tuesday
+            - generic [ref=e129]:
+              - checkbox "Wednesday" [ref=e130]
+              - checkbox
+              - generic [ref=e131]: Wednesday
+            - generic [ref=e132]:
+              - checkbox "Thursday" [ref=e133]
+              - checkbox
+              - generic [ref=e134]: Thursday
+            - generic [ref=e135]:
+              - checkbox "Friday" [ref=e136]
+              - checkbox
+              - generic [ref=e137]: Friday
+            - generic [ref=e138]:
+              - checkbox "Saturday" [checked] [ref=e139]:
+                - generic:
+                  - img
+              - checkbox [checked]
+              - generic [ref=e140]: Saturday
+            - generic [ref=e141]:
+              - checkbox "Sunday" [ref=e142]
+              - checkbox
+              - generic [ref=e143]: Sunday
+        - generic [ref=e144]:
+          - generic [ref=e145]: Preferred Time Slots *
+          - generic [ref=e146]:
+            - generic [ref=e147]:
+              - checkbox "Morning (8am – 12pm)" [checked] [ref=e148]:
+                - generic:
+                  - img
+              - checkbox [checked]
+              - generic [ref=e149]: Morning (8am – 12pm)
+            - generic [ref=e150]:
+              - checkbox "Afternoon (12pm – 4pm)" [ref=e151]
+              - checkbox
+              - generic [ref=e152]: Afternoon (12pm – 4pm)
+            - generic [ref=e153]:
+              - checkbox "Evening (4pm – 8pm)" [ref=e154]
+              - checkbox
+              - generic [ref=e155]: Evening (4pm – 8pm)
+            - generic [ref=e156]:
+              - checkbox "Night (after 8pm)" [ref=e157]
+              - checkbox
+              - generic [ref=e158]: Night (after 8pm)
+    - generic [ref=e159]:
+      - generic [ref=e161]: 6. Teaching Mode
+      - radiogroup [ref=e163]:
+        - generic [ref=e164]:
+          - radio "Online" [checked] [ref=e165]:
+            - img [ref=e167]
+          - radio [checked]
+          - generic [ref=e169]: Online
+        - generic [ref=e170]:
+          - radio "Physical" [ref=e171]
+          - radio
+          - generic [ref=e172]: Physical
+        - generic [ref=e173]:
+          - radio "Both" [ref=e174]
+          - radio
+          - generic [ref=e175]: Both
+        - generic [ref=e176]:
+          - radio "Not Applicable" [ref=e177]
+          - radio
+          - generic [ref=e178]: Not Applicable
+    - generic [ref=e179]:
+      - generic [ref=e180]:
+        - generic [ref=e181]: 7. Support Method
+        - generic [ref=e182]: Select all specific ways you can contribute
+      - generic [ref=e183]:
+        - generic [ref=e184]:
+          - heading "Teaching Support" [level=3] [ref=e185]
+          - generic [ref=e187]:
+            - checkbox "Conduct Classes" [checked] [ref=e188]:
+              - generic:
+                - img
+            - checkbox [checked]
+            - generic [ref=e189]: Conduct Classes
+        - generic [ref=e190]:
+          - heading "Community & Group Support" [level=3] [ref=e191]
+          - generic [ref=e192]:
+            - generic [ref=e193]:
+              - checkbox "Answer student questions in community groups" [ref=e194]
+              - checkbox
+              - generic [ref=e195]: Answer student questions in community groups
+            - generic [ref=e196]:
+              - checkbox "Group moderator / community manager" [ref=e197]
+              - checkbox
+              - generic [ref=e198]: Group moderator / community manager
+            - generic [ref=e199]:
+              - checkbox "Motivation & student guidance" [ref=e200]
+              - checkbox
+              - generic [ref=e201]: Motivation & student guidance
+            - generic [ref=e202]:
+              - checkbox "Admin support (attendance, scheduling, coordination)" [ref=e203]
+              - checkbox
+              - generic [ref=e204]: Admin support (attendance, scheduling, coordination)
+        - generic [ref=e205]:
+          - heading "Academic Assistance" [level=3] [ref=e206]
+          - generic [ref=e207]:
+            - generic [ref=e208]:
+              - checkbox "Paper marking" [ref=e209]
+              - checkbox
+              - generic [ref=e210]: Paper marking
+            - generic [ref=e211]:
+              - checkbox "Reviewing student answers" [ref=e212]
+              - checkbox
+              - generic [ref=e213]: Reviewing student answers
+            - generic [ref=e214]:
+              - checkbox "Explaining corrections" [ref=e215]
+              - checkbox
+              - generic [ref=e216]: Explaining corrections
+            - generic [ref=e217]:
+              - checkbox "Creating notes / slides / summaries / videos" [ref=e218]
+              - checkbox
+              - generic [ref=e219]: Creating notes / slides / summaries / videos
+        - generic [ref=e220]:
+          - heading "Resource Support" [level=3] [ref=e221]
+          - generic [ref=e222]:
+            - generic [ref=e223]:
+              - checkbox "Providing digital materials" [ref=e224]
+              - checkbox
+              - generic [ref=e225]: Providing digital materials
+            - generic [ref=e226]:
+              - checkbox "Providing physical materials" [ref=e227]
+              - checkbox
+              - generic [ref=e228]: Providing physical materials
+            - generic [ref=e229]:
+              - checkbox "Tools, devices, internet, sponsorship support" [ref=e230]
+              - checkbox
+              - generic [ref=e231]: Tools, devices, internet, sponsorship support
+    - generic [ref=e232]:
+      - generic [ref=e234]: 8. Additional Information
+      - generic [ref=e235]:
+        - generic [ref=e236]:
+          - generic [ref=e237]: Past volunteering experience (Optional)
+          - textbox "Past volunteering experience (Optional)" [ref=e238]:
+            - /placeholder: Describe any past experience...
+        - generic [ref=e239]:
+          - generic [ref=e240]: Any preferences or limitations
+          - textbox "Any preferences or limitations" [ref=e241]:
+            - /placeholder: e.g. Can only teach in Sinhala medium...
+        - generic [ref=e242]:
+          - generic [ref=e243]: Comments / Special Notes
+          - textbox "Comments / Special Notes" [ref=e244]:
+            - /placeholder: Any other details...
+    - generic [ref=e245]: Something went wrong. Please try again.
+    - button "Submit Application" [ref=e246]
+  - button "Open Next.js Dev Tools" [ref=e252] [cursor=pointer]:
+    - img [ref=e253]
+  - alert [ref=e256]
+```

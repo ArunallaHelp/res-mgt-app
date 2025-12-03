@@ -32,10 +32,20 @@ export default async function AdminPage() {
     redirect("/manager/dashboard")
   }
 
-  const [managers, groups] = await Promise.all([
-    getAllManagers(),
-    getManagerGroups()
-  ])
+  let managers: any[] = []
+  let groups: any[] = []
+
+  try {
+    const [managersResult, groupsResult] = await Promise.all([
+      getAllManagers(),
+      getManagerGroups()
+    ])
+    managers = managersResult
+    groups = groupsResult
+  } catch (error) {
+    console.error("Failed to fetch admin data:", error)
+    // We continue rendering with empty data to avoid crashing the page
+  }
 
   return <AdminDashboard userEmail={user.email || ""} managers={managers || []} groups={groups || []} />
 }
