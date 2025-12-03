@@ -34,6 +34,20 @@ First off, thank you for considering contributing to Arunalla! It's people like 
 2. Fill in the environment variables in `.env.local`. You will need Supabase credentials.
    - See [README.env.md](./README.env.md) for detailed instructions on where to find these values.
 
+### Database Setup
+
+This project uses **Prisma** ORM with **Supabase**.
+
+1. **Generate Prisma Client**:
+   ```bash
+   npx prisma generate
+   ```
+2. **Push Schema to Database**:
+   Sync your Prisma schema with your Supabase database.
+   ```bash
+   npx prisma db push
+   ```
+
 ## Development Workflow
 
 1. **Start the development server**:
@@ -78,6 +92,37 @@ Please ensure all tests pass before submitting a pull request.
   # or
   npm run lint
   ```
+
+## Security Guidelines
+
+Security is a top priority for Arunalla. Please adhere to the following guidelines:
+
+### Server Actions & Authentication
+
+- **Authentication Checks**: All Server Actions (`app/actions/*.ts`) that perform sensitive operations (create, update, delete, fetch private data) **MUST** verify authentication at the beginning of the function.
+
+  ```typescript
+  import { createClient } from "@/lib/supabase/server";
+
+  export async function myAction() {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+    // Proceed with action...
+  }
+  ```
+
+- **Authorization**: Beyond authentication, ensure the user has the correct permissions (e.g., is an admin) if the action requires it.
+
+### Data Protection
+
+- **No Sensitive Logs**: Do **NOT** use `console.log` to print environment variables, API keys, tokens, or Personally Identifiable Information (PII).
+- **Security Headers**: The application uses `next.config.mjs` to set important security headers (HSTS, X-Frame-Options, etc.). Do not disable these without a valid reason and review.
 
 ## Submitting a Pull Request
 
