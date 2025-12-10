@@ -1,0 +1,26 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Install pnpm globally using npm
+        - npm install -g pnpm
+        # Install dependencies using pnpm with frozen lockfile
+        - pnpm install --frozen-lockfile
+        # Generate Prisma Client
+        - pnpm prisma generate
+    build:
+      commands:
+        # Build the Next.js application
+        - pnpm run build
+  artifacts:
+    # Next.js output directory
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      # Cache Next.js build cache for faster subsequent builds
+      - .next/cache/**/*
+      # Cache node_modules to speed up dependency installation
+      - node_modules/**/*
